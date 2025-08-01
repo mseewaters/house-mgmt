@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  !Sub "${AppName} - FastAPI + AWS SAM + Magnum"
+
+Parameters:
+  AppName:
+    Type: String
+    Default: MyPersonalApp
+    Description: The name of the application.
+
+  StageName:
+    Type: String
+    Default: Prod
+    Description: API Gateway stage name.
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
+      AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
+
+Resources:
+  FastApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AppName}-Function"
+      Handler: [***PROJECT_NAME***].main.handler
+      Runtime: python3.12
+      CodeUri: src/
+      MemorySize: 512
+      Timeout: 10
+      Environment:
+        Variables:
+          APP_NAME: !Ref AppName
+          STAGE: !Ref StageName
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            RestApiId: !Ref ApiGateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref StageName
