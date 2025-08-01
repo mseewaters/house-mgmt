@@ -26,7 +26,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${AppName}-Function"
-      Handler: [***PROJECT_NAME***].main.handler
+      Handler: house-mgmt.main.handler
       Runtime: python3.12
       CodeUri: src/
       MemorySize: 512

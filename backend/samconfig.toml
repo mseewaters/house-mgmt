@@ -2,9 +2,9 @@ version = 0.1
 
 # Development Environment
 [dev.deploy.parameters]
-stack_name = "[***PROJECT_NAME***]-dev"
+stack_name = "house-mgmt-dev"
 resolve_s3 = true
-s3_prefix = "[***PROJECT_NAME***]-dev"
+s3_prefix = "house-mgmt-dev"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
@@ -15,9 +15,9 @@ parameter_overrides = [
 
 # Production Environment  
 [prod.deploy.parameters]
-stack_name = "[***PROJECT_NAME***]-prod"
+stack_name = "house-mgmt-prod"
 resolve_s3 = true
-s3_prefix = "[***PROJECT_NAME***]-prod"
+s3_prefix = "house-mgmt-prod"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
@@ -28,9 +28,9 @@ parameter_overrides = [
 
 # Keep default as prod for backward compatibility
 [default.deploy.parameters]
-stack_name = "[***PROJECT_NAME***]"
+stack_name = "house-mgmt"
 resolve_s3 = true
-s3_prefix = "[***PROJECT_NAME***]"
+s3_prefix = "house-mgmt"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"

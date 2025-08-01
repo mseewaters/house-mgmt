@@ -16,7 +16,7 @@ app = FastAPI(
 # CORS is handled by API Gateway - see template.yaml
 
 # Import routes
-from [***PROJECT_NAME***].routes.health import router as health_router
+from house-mgmt.routes.health import router as health_router
 
 # Register routes
 app.include_router(health_router)
