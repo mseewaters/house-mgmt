@@ -6,7 +6,7 @@ Description: >
 Parameters:
   AppName:
     Type: String
-    Default: MyPersonalApp
+    Default: HouseholdManagement
     Description: The name of the application.
 
   StageName:
