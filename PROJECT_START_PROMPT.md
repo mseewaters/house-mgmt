@@ -4,12 +4,12 @@ Copy and paste this prompt when starting a new project with Claude Code:
 
 ---
 
-**I'm starting a new Vue.js + FastAPI + AWS SAM project called `[PROJECT_NAME]`. Please use my template at `C:\Users\see_w\dev\Projects\template` as the foundation.**
+**I'm starting a new Vue.js + FastAPI + AWS SAM project called `house-mgmt`. Please use my template at `C:\Users\see_w\dev\Projects\template` as the foundation.**
 
 ## Setup Instructions
 
 1. **Read and fully digest** my `Best-practices.md` file and `/examples/` folder
-2. **Copy the template** to a new project directory named `[PROJECT_NAME]`
+2. **Copy the template** to a new project directory named `house-mgmt`
 3. **Follow the development workflow** outlined in the best practices:
    - Ask 3 clarifying questions about edge cases, data models, UX, and infrastructure
    - Propose an implementation plan before coding

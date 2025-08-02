@@ -1,48 +1,179 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  !Sub "${AppName} - FastAPI + AWS SAM + Magnum"
+Description: House Management System - Backend Infrastructure
 
 Parameters:
-  AppName:
+  Environment:
     Type: String
-    Default: HouseholdManagement
-    Description: The name of the application.
-
-  StageName:
-    Type: String
-    Default: Prod
-    Description: API Gateway stage name.
+    Default: dev
+    AllowedValues: [dev, prod]
+    Description: Environment name
+  AllowedIPs:
+    Type: CommaDelimitedList
+    Default: "192.168.1.100/32"
+    Description: IP addresses allowed to access the API
 
 Globals:
+  Function:
+    Runtime: python3.13
+    MemorySize: 512
+    Timeout: 30
+    Environment:
+      Variables:
+        DYNAMODB_TABLE: !Ref HouseMgmtTable
+        S3_WEATHER_BUCKET: !Ref WeatherDataBucket
+        LOG_LEVEL: INFO
+        ENVIRONMENT: !Ref Environment
   Api:
     Cors:
       AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
       AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-      AllowOrigin: "'*'"
+      AllowOrigin: "'*'"  # Will be restricted by resource policy below
 
 Resources:
-  FastApiFunction:
+  # DynamoDB Table for all house management data
+  HouseMgmtTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "house-mgmt-${Environment}"
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK  
+          AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+
+  # S3 Bucket for weather data caching
+  WeatherDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "house-mgmt-weather-${Environment}-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # Main API Lambda Function
+  HouseMgmtApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${AppName}-Function"
-      Handler: house-mgmt.main.handler
-      Runtime: python3.12
-      CodeUri: src/
-      MemorySize: 512
-      Timeout: 10
-      Environment:
-        Variables:
-          APP_NAME: !Ref AppName
-          STAGE: !Ref StageName
+      FunctionName: !Sub "house-mgmt-api-${Environment}"
+      CodeUri: src/house_mgmt/
+      Handler: main.handler
       Events:
-        ApiGateway:
+        Api:
           Type: Api
           Properties:
+            RestApiId: !Ref HouseMgmtApi
             Path: /{proxy+}
             Method: ANY
-            RestApiId: !Ref ApiGateway
-  ApiGateway:
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HouseMgmtTable
+        - S3CrudPolicy:
+            BucketName: !Ref WeatherDataBucket
+        - SSMParameterReadPolicy:
+            ParameterName: "/house-mgmt/openweather-api-key"
+
+  # Background task generation Lambda
+  TaskGeneratorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "house-mgmt-task-generator-${Environment}"
+      CodeUri: src/house_mgmt/
+      Handler: tasks.generate_daily_tasks.handler
+      Events:
+        DailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 5 * * ? *)"  # 5 AM UTC = Midnight EST
+            Description: "Generate daily tasks at local midnight"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HouseMgmtTable
+
+  # Weather update Lambda
+  WeatherUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "house-mgmt-weather-${Environment}"
+      CodeUri: src/house_mgmt/
+      Handler: weather.update_weather.handler
+      Events:
+        WeatherSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: "rate(30 minutes)"
+            Description: "Update weather data every 30 minutes"
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref WeatherDataBucket
+        - SSMParameterReadPolicy:
+            ParameterName: "/house-mgmt/openweather-api-key"
+
+  # API Gateway with IP restrictions
+  HouseMgmtApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: !Ref StageName
+      Name: !Sub "house-mgmt-api-${Environment}"
+      StageName: !Ref Environment
+      Cors:
+        AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"  # Restricted by resource policy below
+      Auth:
+        ResourcePolicy:
+          CustomStatements:
+            - Effect: Allow
+              Principal: "*"
+              Action: execute-api:Invoke
+              Resource: "execute-api:/*"
+              Condition:
+                IpAddress:
+                  aws:SourceIp: !Ref AllowedIPs
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${HouseMgmtApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiUrl"
+  
+  DynamoDBTable:
+    Description: "DynamoDB table name"
+    Value: !Ref HouseMgmtTable
+    Export:
+      Name: !Sub "${AWS::StackName}-TableName"
+
+  WeatherBucket:
+    Description: "S3 bucket for weather data"
+    Value: !Ref WeatherDataBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-WeatherBucket"
