@@ -1,0 +1,37 @@
+# API Gateway CORS - Complete template section
+# Use this approach when you want API Gateway to handle ALL CORS
+# Remove any FastAPI CORS middleware when using this
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Api:
+    # API Gateway handles all CORS - OPTIONS never reach Lambda
+    Cors:
+      AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE,PATCH'"
+      AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,X-Requested-With'"
+      AllowOrigin: "'https://yourdomain.com'"  # Replace with your domain
+      # For development, use: "'http://localhost:3000,http://localhost:5173'"
+      # For open APIs, use: "'*'" (but only if you don't need credentials)
+    
+Resources:
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.main.handler
+      Runtime: python3.11
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+
+# Your FastAPI main.py should NOT have CORS middleware:
+# app = FastAPI()
+# # DO NOT ADD: app.add_middleware(CORSMiddleware, ...)
+# @app.get("/api/test")
+# def test():
+#     return {"message": "API Gateway handles CORS"}

@@ -56,6 +56,6 @@ Thumbs.db
 *.log
 
 # Development docs
-docs/
-examples/
-Best-Practices.md
+# docs/
+# examples/
+# Best-Practices.md
