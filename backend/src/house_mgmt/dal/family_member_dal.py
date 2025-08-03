@@ -1,8 +1,9 @@
 """
 Family Member DAL with Best-practices.md compliance
+Enhanced with get_all_family_members method
 Following Best-practices.md: Type hints, docstrings, structured logging, error handling
 """
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone
 from models.family_member import FamilyMemberCreate, FamilyMemberModel
 from utils.logging import log_info, log_error
@@ -110,3 +111,31 @@ class FamilyMemberDAL:
                 member_id=member_id
             )
             raise RuntimeError("An error occurred while retrieving the family member")
+    
+    def get_all_family_members(self) -> List[FamilyMemberModel]:
+        """
+        Retrieve all family members with structured logging
+        
+        Returns:
+            List of all family members (empty list if none exist)
+            
+        Raises:
+            RuntimeError: If unexpected error occurs
+        """
+        try:
+            results = list(self._stored_members.values())
+            
+            log_info(
+                "All family members retrieved successfully",
+                count=len(results)
+            )
+            
+            return results
+            
+        except Exception as e:
+            # Log full details, return generic message (Best-practices.md requirement)
+            log_error(
+                "Failed to retrieve all family members",
+                error=str(e)
+            )
+            raise RuntimeError("An error occurred while retrieving family members")
