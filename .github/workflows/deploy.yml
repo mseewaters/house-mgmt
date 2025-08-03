@@ -114,4 +114,6 @@ jobs:
 
       - name: Deploy to production
         working-directory: ./backend
-        run: sam deploy --config-env prod --no-confirm-changeset
+        env:
+          PRODUCTION_ALLOWED_IPS: ${{ secrets.PRODUCTION_ALLOWED_IPS }}
+        run: sam deploy --config-env prod --no-confirm-changeset --parameter-overrides "AllowedIPs=${PRODUCTION_ALLOWED_IPS}"

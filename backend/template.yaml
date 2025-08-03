@@ -10,7 +10,7 @@ Parameters:
     Description: Environment name
   AllowedIPs:
     Type: CommaDelimitedList
-    Default: "192.168.1.100/32"
+    Default: "0.0.0.0/0"
     Description: IP addresses allowed to access the API
 
 Globals:

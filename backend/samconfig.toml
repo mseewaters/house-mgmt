@@ -22,7 +22,7 @@ capabilities = "CAPABILITY_IAM"
 image_repositories = []
 parameter_overrides = [
     "Environment=prod",
-    "AllowedIPs=192.168.1.100/32"  # Restrict to specific IP in production
+    "AllowedIPs=$PRODUCTION_ALLOWED_IPS"  # Will be set by GitHub Actions
 ]
 
 # Default to dev for local development
