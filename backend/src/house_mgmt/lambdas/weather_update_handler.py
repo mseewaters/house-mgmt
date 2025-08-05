@@ -10,7 +10,7 @@ import requests
 from datetime import datetime, timezone
 from typing import Dict, Any
 from botocore.exceptions import ClientError
-from utils.logging import log_info, log_error
+from house_mgmt.utils.logging import log_info, log_error
 
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:

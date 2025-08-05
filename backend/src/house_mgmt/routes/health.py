@@ -3,7 +3,7 @@ Health check and sample routes
 """
 import os
 from fastapi import APIRouter
-from utils.logging import log_info
+from house_mgmt.utils.logging import log_info
 
 router = APIRouter(prefix="/api", tags=["health"])
 

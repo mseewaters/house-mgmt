@@ -7,9 +7,9 @@ from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
-from models.family_member import FamilyMemberCreate, FamilyMemberModel
-from services.family_member_service import FamilyMemberService
-from utils.logging import log_info, log_error
+from house_mgmt.models.family_member import FamilyMemberCreate, FamilyMemberModel
+from house_mgmt.services.family_member_service import FamilyMemberService
+from house_mgmt.utils.logging import log_info, log_error
 
 router = APIRouter(prefix="/api", tags=["family-members"])
 

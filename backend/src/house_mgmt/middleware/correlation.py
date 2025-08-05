@@ -5,7 +5,7 @@ Following Best-practices.md: Structured JSON logging with correlation IDs
 import uuid
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-from utils.logging import set_correlation_id, log_info
+from house_mgmt.utils.logging import set_correlation_id, log_info
 
 class CorrelationIDMiddleware(BaseHTTPMiddleware):
     """

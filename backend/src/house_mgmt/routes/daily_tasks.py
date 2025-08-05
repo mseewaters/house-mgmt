@@ -7,10 +7,10 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
 from datetime import datetime, timezone, date
 import re
-from models.daily_task import DailyTaskModel
-from services.daily_task_generation_service import DailyTaskGenerationService
-from dal.daily_task_dal import DailyTaskDAL
-from utils.logging import log_info, log_error
+from house_mgmt.models.daily_task import DailyTaskModel
+from house_mgmt.services.daily_task_generation_service import DailyTaskGenerationService
+from house_mgmt.dal.daily_task_dal import DailyTaskDAL
+from house_mgmt.utils.logging import log_info, log_error
 
 router = APIRouter(prefix="/api/daily-tasks", tags=["daily-tasks"])
 

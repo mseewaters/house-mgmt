@@ -3,9 +3,9 @@ Recurring Task Service Layer
 Following Best-practices.md: API → Service → DAL separation
 """
 from typing import List, Optional
-from models.recurring_task import RecurringTaskCreate, RecurringTaskModel
-from dal.recurring_task_dal import RecurringTaskDAL
-from utils.logging import log_info, log_error
+from house_mgmt.models.recurring_task import RecurringTaskCreate, RecurringTaskModel
+from house_mgmt.dal.recurring_task_dal import RecurringTaskDAL
+from house_mgmt.utils.logging import log_info, log_error
 
 
 class RecurringTaskService:

@@ -8,8 +8,8 @@ import os
 from typing import List, Optional, Dict
 from datetime import datetime, timezone
 from botocore.exceptions import ClientError
-from models.recurring_task import RecurringTaskCreate, RecurringTaskModel
-from utils.logging import log_info, log_error
+from house_mgmt.models.recurring_task import RecurringTaskCreate, RecurringTaskModel
+from house_mgmt.utils.logging import log_info, log_error
 
 
 class RecurringTaskDAL:

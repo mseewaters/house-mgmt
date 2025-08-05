@@ -7,8 +7,8 @@ import os
 from typing import Optional, List
 from datetime import datetime, timezone
 from botocore.exceptions import ClientError
-from models.family_member import FamilyMemberCreate, FamilyMemberModel
-from utils.logging import log_info, log_error
+from house_mgmt.models.family_member import FamilyMemberCreate, FamilyMemberModel
+from house_mgmt.utils.logging import log_info, log_error
 
 
 class FamilyMemberDAL:

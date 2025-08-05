@@ -9,7 +9,7 @@ import boto3
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone, timedelta
 from botocore.exceptions import ClientError
-from utils.logging import log_info, log_error
+from house_mgmt.utils.logging import log_info, log_error
 
 
 class WeatherService:
