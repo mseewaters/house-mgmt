@@ -28,6 +28,19 @@
 │ • Backend CI/CD │    │ • Time/Date API │
 │ • SAM Deploy    │    │                 │
 └─────────────────┘    └─────────────────┘
+
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Frontend      │    │  Main API Lambda │    │ Weather Lambda  │
+│                 │────▶│                  │    │ (Cron Job)      │
+│ GET /api/weather│    │ Reads from S3    │    │ Updates S3      │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                │                        │
+                                ▼                        ▼
+                         ┌─────────────────┐    ┌─────────────────┐
+                         │   S3 Bucket     │    │ OpenWeather API │
+                         │ (Weather Cache) │    │                 │
+                         └─────────────────┘    └─────────────────┘
+                         
 ```
 
 ### Technology Stack

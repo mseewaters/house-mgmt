@@ -125,7 +125,7 @@ Resources:
     Properties:
       FunctionName: !Sub "house-mgmt-weather-${Environment}"
       CodeUri: src/house_mgmt/
-      Handler: weather.update_weather.handler
+      Handler: lambdas.weather_update_handler.lambda_handler
       Events:
         WeatherSchedule:
           Type: Schedule

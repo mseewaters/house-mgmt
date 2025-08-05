@@ -1,67 +1,39 @@
 """
-Weather Service - OpenWeather API integration with S3 caching
-Following Best-practices.md: External API integration, caching, structured logging, error handling
-Following technical design: 5-day forecast with hourly cache refresh
+Weather Service - Transform raw OpenWeather data from S3 for frontend consumption
+Following Best-practices.md: Service layer, structured logging, error handling
+Reads raw OpenWeather JSON from S3 and transforms to frontend format
 """
 import os
 import json
 import boto3
-import requests
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone, timedelta
-from botocore.exceptions import ClientError, NoCredentialsError
+from botocore.exceptions import ClientError
 from utils.logging import log_info, log_error
 
 
 class WeatherService:
     """
-    Service for weather data retrieval with OpenWeather API and S3 caching
+    Service for weather data transformation and serving
     
     Responsibilities:
-    - Fetch current weather and 5-day forecast from OpenWeather API
-    - Cache weather data in S3 with 1-hour expiry
-    - Handle API errors gracefully with fallback to cached data
-    - Transform API responses to standardized format
+    - Read raw OpenWeather data from S3 cache
+    - Transform raw JSON to frontend-friendly format
+    - Handle cache validation and staleness
+    - Provide fallback when data unavailable
     """
     
-    def __init__(self, api_key: str = None, bucket_name: str = None) -> None:
+    def __init__(self, bucket_name: str = None) -> None:
         """
-        Initialize weather service with API key and S3 bucket
+        Initialize weather service with S3 bucket for reading cached data
         
         Args:
-            api_key: OpenWeather API key (defaults to environment variable or 'test-key' for testing)
-            bucket_name: S3 bucket name for caching (defaults to environment variable)
-            
-        Raises:
-            ValueError: If required configuration is missing
+            bucket_name: S3 bucket name for reading cached data
         """
-    def __init__(self, api_key: str = None, bucket_name: str = None) -> None:
-        """
-        Initialize weather service with API key and S3 bucket
-        
-        Args:
-            api_key: OpenWeather API key (defaults to environment variable or 'test-key' for testing)
-            bucket_name: S3 bucket name for caching (defaults to environment variable)
-            
-        Raises:
-            ValueError: If required configuration is missing
-        """
-        # Handle API key validation - distinguish between None passed explicitly vs default
-        if api_key is None:
-            # Try environment variable, then default to test key
-            self.api_key = os.getenv('OPENWEATHER_API_KEY', 'test-key')
-        else:
-            # Explicit value passed - validate it
-            if not api_key or not api_key.strip():
-                raise ValueError("OpenWeather API key is required")
-            self.api_key = api_key.strip()
-        
         # Handle bucket name validation  
         if bucket_name is None:
-            # Try environment variable, then default
-            self.bucket_name = os.getenv('WEATHER_CACHE_BUCKET', 'house-mgmt-weather-data')
+            self.bucket_name = os.getenv('S3_WEATHER_BUCKET', 'house-mgmt-weather-data')
         else:
-            # Explicit value passed - validate it
             if not bucket_name or not bucket_name.strip():
                 raise ValueError("S3 bucket name is required")
             self.bucket_name = bucket_name.strip()
@@ -73,10 +45,9 @@ class WeatherService:
             log_error("Failed to initialize S3 client", error=str(e))
             self.s3_client = None
         
-        # OpenWeather API configuration
-        self.base_url = "https://api.openweathermap.org/data/2.5"
-        self.cache_key = "current-weather.json"
-        self.cache_expiry_hours = 1
+        # Cache configuration
+        self.cache_key = "openweather-raw.json"  # Raw data from update Lambda
+        self.cache_expiry_minutes = 45  # Consider stale after 45 minutes
         
         log_info(
             "Weather service initialized",
@@ -86,51 +57,48 @@ class WeatherService:
     
     def get_current_weather(self) -> Optional[Dict[str, Any]]:
         """
-        Get current weather and 5-day forecast with S3 caching
+        Get current weather and 5-day forecast by reading and transforming S3 data
         
         Returns:
-            Weather data dict with current conditions and 5-day forecast, or None if error
+            Transformed weather data dict with current conditions and 5-day forecast, or None if error
             
-        Cache Strategy:
-        1. Try to get from S3 cache
-        2. If cache miss or expired, fetch from OpenWeather API
-        3. Cache fresh data in S3
-        4. Return weather data or None on error
+        Process:
+        1. Read raw OpenWeather JSON from S3 
+        2. Transform to frontend format
+        3. Check if data is stale (> 45 minutes old)
+        4. Return formatted data or None if unavailable
         """
         try:
             log_info("Weather data request started")
             
-            # Try to get from cache first
-            cached_data = self._get_from_cache()
-            if cached_data and self._is_cache_fresh(cached_data):
-                log_info("Returning fresh cached weather data")
-                return cached_data
+            # Read raw data from S3
+            raw_weather_data = self._get_raw_data_from_s3()
+            if not raw_weather_data:
+                log_error("No weather data available in S3 cache")
+                return None
             
-            log_info("Cache miss or expired, fetching from OpenWeather API")
+            # Check if data is stale
+            if self._is_data_stale(raw_weather_data):
+                log_info("Weather data is stale but returning anyway")
+                # Still return stale data rather than nothing
             
-            # Fetch fresh data from API
-            fresh_data = self._fetch_from_openweather_api()
-            if fresh_data:
-                # Cache the fresh data
-                self._save_to_cache(fresh_data)
-                log_info("Fresh weather data cached successfully")
-                return fresh_data
+            # Transform raw OpenWeather data to frontend format
+            transformed_data = self._transform_openweather_data(raw_weather_data)
             
-            # API failed, try to return stale cached data if available
-            if cached_data:
-                log_info("API failed, returning stale cached data")
-                return cached_data
+            log_info(
+                "Weather data transformed successfully",
+                forecast_days=len(transformed_data.get("forecast", [])),
+                updated_at=transformed_data.get("updated_at")
+            )
             
-            # No data available
-            log_error("No weather data available (API failed and no cache)")
-            return None
+            return transformed_data
             
         except Exception as e:
             log_error("Failed to get weather data", error=str(e))
             return None
     
-    def _get_from_cache(self) -> Optional[Dict[str, Any]]:
-        """Get weather data from S3 cache"""
+    def _get_raw_data_from_s3(self) -> Optional[Dict[str, Any]]:
+        """Read raw OpenWeather JSON data from S3"""
         if not self.s3_client:
             return None
         
@@ -140,200 +108,103 @@ class WeatherService:
                 Key=self.cache_key
             )
             
-            data = json.loads(response['Body'].read())
-            log_info("Weather data retrieved from cache")
-            return data
+            raw_data = json.loads(response['Body'].read())
+            log_info("Raw weather data retrieved from S3")
+            return raw_data
             
         except ClientError as e:
             if e.response['Error']['Code'] == 'NoSuchKey':
-                log_info("No cached weather data found")
+                log_info("No cached weather data found in S3")
             else:
-                log_error("Failed to retrieve from cache", error=str(e))
+                log_error(f"S3 error retrieving weather data: {e}")
             return None
         except Exception as e:
-            log_error("Error reading cached weather data", error=str(e))
+            log_error(f"Unexpected error retrieving weather data: {e}")
             return None
     
-    def _is_cache_fresh(self, cached_data: Dict[str, Any]) -> bool:
-        """Check if cached data is still fresh (within expiry time)"""
+    def _is_data_stale(self, weather_data: Dict[str, Any]) -> bool:
+        """Check if weather data is considered stale (> 45 minutes old)"""
         try:
-            updated_at_str = cached_data.get('updated_at')
-            if not updated_at_str:
-                return False
+            fetched_at_str = weather_data.get('fetched_at')
+            if not fetched_at_str:
+                return True
             
-            updated_at = datetime.fromisoformat(updated_at_str.replace('Z', '+00:00'))
-            now = datetime.now(timezone.utc)
-            age = now - updated_at
+            fetched_at = datetime.fromisoformat(fetched_at_str.replace('Z', '+00:00'))
+            age_minutes = (datetime.now(timezone.utc) - fetched_at).total_seconds() / 60
             
-            is_fresh = age.total_seconds() < (self.cache_expiry_hours * 3600)
-            
-            log_info(
-                "Cache freshness check",
-                age_minutes=age.total_seconds() / 60,
-                is_fresh=is_fresh,
-                expiry_hours=self.cache_expiry_hours
-            )
-            
-            return is_fresh
+            return age_minutes > self.cache_expiry_minutes
             
         except Exception as e:
-            log_error("Error checking cache freshness", error=str(e))
-            return False
+            log_error(f"Error checking data staleness: {e}")
+            return True
     
-    def _fetch_from_openweather_api(self) -> Optional[Dict[str, Any]]:
-        """Fetch fresh weather data from OpenWeather API"""
+    def _transform_openweather_data(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Transform raw OpenWeather OneCall API response to frontend format
+        
+        Input: Raw OpenWeather 3.0 OneCall API response (daily data only)
+        Output: Frontend-friendly format with current, today, and 5-day forecast
+        """
         try:
-            # Fetch current weather
-            current_url = f"{self.base_url}/weather"
-            current_params = {
-                'q': 'Willingboro,NJ,US',  # User location from requirements
-                'appid': self.api_key,
-                'units': 'imperial'  # Fahrenheit
-            }
+            daily_data = raw_data.get('daily', [])
+            if not daily_data:
+                log_error("No daily data in OpenWeather response")
+                return None
             
-            current_response = requests.get(current_url, params=current_params, timeout=10)
-            current_response.raise_for_status()
-            current_data = current_response.json()
+            # Today is the first day in the daily array
+            today_data = daily_data[0]
             
-            # Fetch 5-day forecast
-            forecast_url = f"{self.base_url}/forecast"
-            forecast_params = {
-                'q': 'Willingboro,NJ,US',
-                'appid': self.api_key,
-                'units': 'imperial'
-            }
-            
-            forecast_response = requests.get(forecast_url, params=forecast_params, timeout=10)
-            forecast_response.raise_for_status()
-            forecast_data = forecast_response.json()
-            
-            # Transform to our standard format
-            transformed_data = self._transform_weather_data(current_data, forecast_data)
-            
-            log_info("Weather data fetched successfully from OpenWeather API")
-            return transformed_data
-            
-        except requests.RequestException as e:
-            log_error("Failed to fetch from OpenWeather API", error=str(e))
-            return None
-        except Exception as e:
-            log_error("Error processing OpenWeather API response", error=str(e))
-            return None
-    
-    def _transform_weather_data(self, current_data: Dict, forecast_data: Dict) -> Dict[str, Any]:
-        """Transform OpenWeather API response to our standard format"""
-        try:
-            now = datetime.now(timezone.utc)
-            
-            # Transform current weather
+            # Extract current weather (using today's data as proxy for current)
             current = {
-                "temperature": round(current_data['main']['temp']),
-                "humidity": current_data['main']['humidity'],
-                "wind_speed": round(current_data['wind'].get('speed', 0)),
-                "condition": current_data['weather'][0]['main'],
-                "icon": current_data['weather'][0]['icon']
+                "temperature": round(today_data['temp']['day']),
+                "humidity": today_data['humidity'],
+                "wind_speed": round(today_data['wind_speed']),
+                "condition": today_data['weather'][0]['description'].title(),
+                "icon": today_data['weather'][0]['icon']
             }
             
-            # Get today's high/low from forecast or current
-            today_high = round(current_data['main'].get('temp_max', current_data['main']['temp']))
-            today_low = round(current_data['main'].get('temp_min', current_data['main']['temp']))
-            
+            # Extract today's high/low
             today = {
-                "high": today_high,
-                "low": today_low,
-                "condition": current_data['weather'][0]['main'],
-                "icon": current_data['weather'][0]['icon']
+                "high": round(today_data['temp']['max']),
+                "low": round(today_data['temp']['min']),
+                "condition": today_data['weather'][0]['description'].title(),
+                "icon": today_data['weather'][0]['icon']
             }
             
-            # Transform 5-day forecast
-            forecast = self._process_forecast_data(forecast_data)
-            
-            result = {
-                "current": current,
-                "today": today,
-                "forecast": forecast,
-                "updated_at": now.isoformat()
-            }
-            
-            log_info("Weather data transformed successfully")
-            return result
-            
-        except Exception as e:
-            log_error("Error transforming weather data", error=str(e))
-            raise
-    
-    def _process_forecast_data(self, forecast_data: Dict) -> List[Dict[str, Any]]:
-        """Process forecast data into 5-day summary"""
-        try:
-            forecast_list = forecast_data.get('list', [])
-            if not forecast_list:
-                return []
-            
-            # Group by date and get daily highs/lows
-            daily_data = {}
-            
-            for item in forecast_list:
-                dt_txt = item['dt_txt']  # Format: "2024-08-02 15:00:00"
-                date_str = dt_txt.split(' ')[0]  # Get date part
-                
-                temp_max = item['main']['temp_max']
-                temp_min = item['main']['temp_min']
-                weather_info = item['weather'][0]
-                
-                if date_str not in daily_data:
-                    daily_data[date_str] = {
-                        'highs': [],
-                        'lows': [],
-                        'conditions': [],
-                        'icons': []
-                    }
-                
-                daily_data[date_str]['highs'].append(temp_max)
-                daily_data[date_str]['lows'].append(temp_min)
-                daily_data[date_str]['conditions'].append(weather_info['main'])
-                daily_data[date_str]['icons'].append(weather_info['icon'])
-            
-            # Convert to 5-day forecast format
+            # Extract 5-day forecast (skip today, take next 5 days)
             forecast = []
-            for date_str in sorted(daily_data.keys())[:5]:  # Limit to 5 days
-                day_data = daily_data[date_str]
-                
-                # Get day name
-                date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-                day_name = date_obj.strftime('%A')
-                
-                # Get most common condition and icon
-                most_common_condition = max(set(day_data['conditions']), key=day_data['conditions'].count)
-                most_common_icon = max(set(day_data['icons']), key=day_data['icons'].count)
+            for i, day_data in enumerate(daily_data[1:6]):  # Skip today, take next 5
+                day_timestamp = day_data['dt']
+                day_name = datetime.fromtimestamp(day_timestamp, tz=timezone.utc).strftime('%A')
                 
                 forecast.append({
                     "day": day_name,
-                    "high": round(max(day_data['highs'])),
-                    "low": round(min(day_data['lows'])),
-                    "icon": most_common_icon,
-                    "condition": most_common_condition
+                    "high": round(day_data['temp']['max']),
+                    "low": round(day_data['temp']['min']),
+                    "icon": day_data['weather'][0]['icon'],
+                    "condition": day_data['weather'][0]['description'].title()
                 })
             
-            return forecast
+            # Create final response
+            transformed_data = {
+                "current": current,
+                "today": today,
+                "forecast": forecast,
+                "updated_at": raw_data.get('fetched_at', datetime.now(timezone.utc).isoformat())
+            }
             
-        except Exception as e:
-            log_error("Error processing forecast data", error=str(e))
-            return []
-    
-    def _save_to_cache(self, data: Dict[str, Any]) -> None:
-        """Save weather data to S3 cache"""
-        if not self.s3_client:
-            return
-        
-        try:
-            self.s3_client.put_object(
-                Bucket=self.bucket_name,
-                Key=self.cache_key,
-                Body=json.dumps(data),
-                ContentType='application/json'
+            log_info(
+                "Weather data transformation completed",
+                current_temp=current['temperature'],
+                today_high=today['high'],
+                forecast_days=len(forecast)
             )
             
-            log_info("Weather data cached successfully")
+            return transformed_data
             
+        except (KeyError, IndexError, TypeError) as e:
+            log_error(f"Error transforming weather data: {e}")
+            return None
         except Exception as e:
-            log_error("Failed to cache weather data", error=str(e))
+            log_error(f"Unexpected error in weather transformation: {e}")
+            return None
