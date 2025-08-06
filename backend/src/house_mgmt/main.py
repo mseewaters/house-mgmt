@@ -3,8 +3,8 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from mangum import Mangum
-from house_mgmt.middleware.correlation import CorrelationIDMiddleware
-from house_mgmt.utils.logging import log_info, log_error
+from middleware.correlation import CorrelationIDMiddleware
+from utils.logging import log_info, log_error
 
 # Read environment variables (passed from SAM)
 APP_NAME = os.getenv("APP_NAME", "HouseManagement")
@@ -85,11 +85,11 @@ async def limit_request_size(request: Request, call_next):
 # CORS is handled by API Gateway - see template.yaml
 
 # Import routes
-from house_mgmt.routes.health import router as health_router
-from house_mgmt.routes.family_members import router as family_router
-from house_mgmt.routes.recurring_tasks import router as recurring_tasks_router
-from house_mgmt.routes.daily_tasks import router as daily_tasks_router
-from house_mgmt.routes.weather import router as weather_router
+from routes.health import router as health_router
+from routes.family_members import router as family_router
+from routes.recurring_tasks import router as recurring_tasks_router
+from routes.daily_tasks import router as daily_tasks_router
+from routes.weather import router as weather_router
 
 # Register routes
 app.include_router(health_router)

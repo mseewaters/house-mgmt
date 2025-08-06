@@ -8,8 +8,8 @@ import os
 from typing import List, Optional, Dict
 from datetime import datetime, timezone
 from botocore.exceptions import ClientError
-from house_mgmt.models.daily_task import DailyTaskCreate, DailyTaskModel
-from house_mgmt.utils.logging import log_info, log_error
+from models.daily_task import DailyTaskCreate, DailyTaskModel
+from utils.logging import log_info, log_error
 
 
 class DailyTaskDAL:

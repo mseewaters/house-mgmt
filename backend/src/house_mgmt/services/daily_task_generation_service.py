@@ -6,10 +6,10 @@ Following technical design: Daily task generation process
 from typing import List, Optional
 from datetime import datetime, timezone, date
 import re
-from house_mgmt.models.daily_task import DailyTaskCreate, DailyTaskModel
-from house_mgmt.dal.daily_task_dal import DailyTaskDAL
-from house_mgmt.dal.recurring_task_dal import RecurringTaskDAL
-from house_mgmt.utils.logging import log_info, log_error
+from models.daily_task import DailyTaskCreate, DailyTaskModel
+from dal.daily_task_dal import DailyTaskDAL
+from dal.recurring_task_dal import RecurringTaskDAL
+from utils.logging import log_info, log_error
 
 
 class DailyTaskGenerationService:

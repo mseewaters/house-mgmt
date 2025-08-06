@@ -3,9 +3,9 @@ Family Member Service Layer
 Following Best-practices.md: API → Service → DAL separation
 """
 from typing import List, Optional
-from house_mgmt.models.family_member import FamilyMemberCreate, FamilyMemberModel
-from house_mgmt.dal.family_member_dal import FamilyMemberDAL
-from house_mgmt.utils.logging import log_info, log_error
+from models.family_member import FamilyMemberCreate, FamilyMemberModel
+from dal.family_member_dal import FamilyMemberDAL
+from utils.logging import log_info, log_error
 
 
 class FamilyMemberService:

@@ -7,9 +7,9 @@ from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
-from house_mgmt.models.recurring_task import RecurringTaskCreate, RecurringTaskModel
-from house_mgmt.services.recurring_task_service import RecurringTaskService
-from house_mgmt.utils.logging import log_info, log_error
+from models.recurring_task import RecurringTaskCreate, RecurringTaskModel
+from services.recurring_task_service import RecurringTaskService
+from utils.logging import log_info, log_error
 
 router = APIRouter(prefix="/api", tags=["recurring-tasks"])
 

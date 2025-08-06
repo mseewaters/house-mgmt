@@ -4,7 +4,7 @@ Following Best-practices.md: Type hints, docstrings, structured logging, error h
 """
 from datetime import date, datetime, timezone
 from typing import List, Dict, Any
-from house_mgmt.utils.logging import log_info, log_error
+from utils.logging import log_info, log_error
 
 
 class DailyTaskService:

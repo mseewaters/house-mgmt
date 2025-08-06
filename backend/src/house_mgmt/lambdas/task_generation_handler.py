@@ -7,8 +7,8 @@ import json
 import os
 from datetime import datetime, timezone, date, timedelta
 from typing import Dict, Any
-from house_mgmt.services.daily_task_generation_service import DailyTaskGenerationService
-from house_mgmt.utils.logging import log_info, log_error
+from services.daily_task_generation_service import DailyTaskGenerationService
+from utils.logging import log_info, log_error
 
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:

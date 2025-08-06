@@ -5,8 +5,8 @@ Following existing patterns from daily_task and other routes
 """
 from fastapi import APIRouter, HTTPException, Request
 from typing import Dict, Any
-from house_mgmt.services.weather_service import WeatherService
-from house_mgmt.utils.logging import log_info, log_error
+from services.weather_service import WeatherService
+from utils.logging import log_info, log_error
 
 router = APIRouter(prefix="/api", tags=["weather"])
 
