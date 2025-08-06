@@ -19,7 +19,7 @@ app = FastAPI(
     docs_url=None if STAGE == "Prod" else "/docs",  # Disable docs in production
     redoc_url=None if STAGE == "Prod" else "/redoc"  # Disable redoc in production
 )
-
+ 
 # Security: Add trusted host middleware for production only
 if STAGE == "Prod":
     # In production, only allow requests from known hosts
