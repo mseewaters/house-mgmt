@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional
-
+ 
 class User:
     def __init__(
         self,

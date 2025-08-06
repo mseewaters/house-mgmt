@@ -1,1 +1,1 @@
-{"errorMessage": "Unable to import module 'lambdas.weather_update_handler': No module named 'house_mgmt'", "errorType": "Runtime.ImportModuleError", "requestId": "", "stackTrace": []}
+{"statusCode": 500, "body": "{\"success\": false, \"message\": \"Weather update Lambda error\", \"error_type\": \"RuntimeError\", \"request_id\": \"9cd5c2a6-8131-4b4a-8e11-f7d0dcdbf933\"}"}

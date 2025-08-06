@@ -100,7 +100,7 @@ Resources:
         - S3CrudPolicy:
             BucketName: !Ref WeatherDataBucket
         - SSMParameterReadPolicy:
-            ParameterName: "/house-mgmt/openweather-api-key"
+            ParameterName: "house-mgmt/openweather-api-key"
 
   # Background task generation Lambda
   TaskGeneratorFunction:
