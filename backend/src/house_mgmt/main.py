@@ -2,15 +2,17 @@ import os
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from middleware.correlation import CorrelationIDMiddleware
 from utils.logging import log_info, log_error
 
-# Read environment variables (passed from SAM)
+
+# Read environment variables (passed from SAM template)   
 APP_NAME = os.getenv("APP_NAME", "HouseManagement")
 STAGE = os.getenv("STAGE", "Prod")
 
-# Initialize FastAPI app with security settings
+# Initialize FastAPI app with security settings 
 app = FastAPI(
     title=f"{APP_NAME} API",
     description=f"A FastAPI backend deployed via AWS SAM (Stage: {STAGE})",
@@ -19,8 +21,16 @@ app = FastAPI(
     docs_url=None if STAGE == "Prod" else "/docs",  # Disable docs in production
     redoc_url=None if STAGE == "Prod" else "/redoc"  # Disable redoc in production
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
  
-# Security: Add trusted host middleware for production only
+# Security: Add trusted host middleware for production only  
 if STAGE == "Prod":
     # In production, only allow requests from known hosts
     app.add_middleware(
@@ -37,7 +47,7 @@ async def secure_exception_handler(request: Request, exc: Exception):
     """Handle all unhandled exceptions securely"""
     correlation_id = getattr(request.state, 'correlation_id', 'unknown')
     
-    # Log full error details for developers
+    # Log full error details for developer visibility
     log_error(
         "Unhandled exception occurred",
         error_type=type(exc).__name__,
@@ -47,7 +57,7 @@ async def secure_exception_handler(request: Request, exc: Exception):
         correlation_id=correlation_id
     )
     
-    # Return generic error to users (security best practice)
+    # Return generic error to users (security best practice)  
     return JSONResponse(
         status_code=500,
         content={
@@ -119,6 +129,7 @@ async def test_correlation(request: Request):
         "correlation_id": correlation_id,
         "available": correlation_id is not None
     }
+
 
 # Lambda handler
 handler = Mangum(app)

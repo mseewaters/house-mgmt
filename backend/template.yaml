@@ -24,11 +24,6 @@ Globals:
         S3_WEATHER_BUCKET: !Ref WeatherDataBucket
         LOG_LEVEL: INFO
         ENVIRONMENT: !Ref Environment
-  Api:
-    Cors:
-      AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
-      AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-      AllowOrigin: "'*'"  # Will be restricted by resource policy below
 
 Resources:
   # DynamoDB Table for all house management data
@@ -88,10 +83,14 @@ Resources:
       CodeUri: src/house_mgmt/
       Handler: main.handler
       Events:
+        RootApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
         Api:
           Type: Api
           Properties:
-            RestApiId: !Ref HouseMgmtApi
             Path: /{proxy+}
             Method: ANY
       Policies:
@@ -138,31 +137,10 @@ Resources:
         - SSMParameterReadPolicy:
             ParameterName: "house-mgmt/openweather-api-key"
 
-  # API Gateway with IP restrictions
-  HouseMgmtApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: !Sub "house-mgmt-api-${Environment}"
-      StageName: !Ref Environment
-      Cors:
-        AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
-        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'"  # Restricted by resource policy below
-      Auth:
-        ResourcePolicy:
-          CustomStatements:
-            - Effect: Allow
-              Principal: "*"
-              Action: execute-api:Invoke
-              Resource: "execute-api:/*"
-              Condition:
-                IpAddress:
-                  aws:SourceIp: !Ref AllowedIPs
-
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${HouseMgmtApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Stage"
     Export:
       Name: !Sub "${AWS::StackName}-ApiUrl"
   

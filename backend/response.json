@@ -1,1 +1,1 @@
-{"statusCode": 500, "body": "{\"success\": false, \"message\": \"Weather update Lambda error\", \"error_type\": \"RuntimeError\", \"request_id\": \"dccccef8-a751-4749-9814-9763e49d4b7e\"}"}
+{"statusCode": 200, "body": "{\"success\": true, \"message\": \"Weather data updated successfully\", \"updated_at\": \"2025-08-06T00:29:07.105094+00:00\", \"execution_time_seconds\": 1.135747, \"request_id\": \"c56884a9-67dd-4bc6-b13e-589be0120143\"}"}

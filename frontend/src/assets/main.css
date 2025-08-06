@@ -1,0 +1,354 @@
+/* House Management - Prototype-Matching Design System */
+/* Based on working prototype from 04-PROTOTYPES.md */
+
+/* ===== CSS RESET ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== DESIGN SYSTEM VARIABLES ===== */
+:root {
+  /* Background Colors - Matching Prototype */
+  --bg-body: #e5e5e5;
+  --bg-container: #ffffff;
+  --bg-sidebar: #343c40;
+  --bg-tab-nav: #495255;
+  --bg-tab-active: #d25151;
+  --bg-weather-section: #495255;
+
+  /* Text Colors */  
+  --text-white: #f2f2f2;
+  --text-white-muted: rgba(255,255,255,0.8);
+  --text-white-light: rgba(255,255,255,0.7);
+  --text-primary: #2b3134;     /* Dark steel grey */
+  --text-secondary: #5b6368;   /* Medium muted steel grey */
+  --text-muted: #9ba2a7;       /* Muted cool grey */
+
+  /* Accent Colors */
+  --accent-red: #C40C0C;
+  --accent-success: #95A985;
+  --accent-gradient: linear-gradient(135deg, #C40C0C, #d25151);
+
+  /* Border Colors */
+  --border-light: #e8eaed;
+  --border-divider: #f0f0f0;
+  --border-weather: rgba(255,255,255,0.2);
+
+  /* Task Colors */  
+  --task-bg-completed: #f0f8f4;
+  --task-bg-overdue: #fef2f2;
+  --task-border-completed: #95A985;
+  --task-border-overdue: #fecaca;
+
+  /* Typography */
+  --font-family-primary: 'Inter', system-ui, sans-serif;
+  --font-family-display: 'Nunito Sans', system-ui, sans-serif;
+  
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+
+  /* Spacing */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 0.75rem;   /* 12px */
+  --spacing-lg: 1rem;      /* 16px */
+  --spacing-xl: 1.5rem;    /* 24px */
+  --spacing-2xl: 2rem;     /* 32px */
+
+  /* Component Standards from Prototype */
+  --touch-target: 44px;
+  --sidebar-width: 220px;
+  --container-width: 1280px;
+  --container-height: 800px;
+  --avatar-size: 40px;
+  --progress-ring-size: 50px;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== BASE STYLES ===== */
+html {
+  font-size: 16px;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  height: 100vh;
+  display: flex;
+}
+
+/* ===== MAIN LAYOUT (Fire 10 Tablet - 1280x800) ===== */
+.main-layout {
+  display: flex;
+  width: 100%;
+  max-width: var(--container-width);
+  height: var(--container-height);
+  margin: 0 auto;
+  background-color: var(--bg-container);
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-sidebar);
+  color: var(--text-white);
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.main-content {
+  flex: 1;
+  background-color: var(--bg-container);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== TAB NAVIGATION ===== */
+.tab-navigation {
+  background-color: var(--bg-tab-nav);
+  display: flex;
+  padding: 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  color: var(--text-white-muted);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: var(--touch-target);
+  border-bottom: 3px solid transparent;
+}
+
+.nav-tab:hover {
+  color: var(--text-white);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-tab.active {
+  background-color: var(--bg-tab-active);
+  color: var(--text-white);
+  border-bottom-color: var(--accent-red);
+}
+
+/* ===== CONTENT AREA ===== */
+.content-area {
+  flex: 1;
+  padding: var(--spacing-xl);
+  overflow-y: auto;
+}
+
+/* ===== PERSON/PET CARDS ===== */
+.member-row {
+  margin-bottom: var(--spacing-xl);
+}
+
+.member-cards {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.member-card {
+  background-color: var(--bg-container);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  min-width: 280px;
+  flex: 1;
+}
+
+.member-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.member-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.member-avatar {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  background-color: var(--accent-red);
+  color: var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}
+
+.member-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.progress-display {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ===== TASK LIST ===== */
+.task-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) 0;
+  min-height: var(--touch-target);
+  border-bottom: 1px solid var(--border-divider);
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-light);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-checkbox.completed {
+  background-color: var(--accent-success);
+  border-color: var(--accent-success);
+}
+
+.task-checkbox.overdue {
+  border-color: var(--accent-red);
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-name {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.task-status {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.task-status.completed {
+  color: var(--accent-success);
+}
+
+.task-status.overdue {
+  color: var(--accent-red);
+}
+
+.task-status.pending {
+  color: var(--text-secondary);
+}
+
+/* ===== WEATHER WIDGET ===== */
+.weather-widget {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.weather-current {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.weather-date {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+.weather-time {
+  font-size: var(--font-size-lg);
+  color: var(--text-white-muted);
+  margin-bottom: var(--spacing-lg);
+}
+
+.weather-condition {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.weather-temp {
+  font-size: var(--font-size-lg);
+  color: var(--text-white-muted);
+}
+
+.weather-forecast {
+  border-top: 1px solid var(--border-weather);
+  padding-top: var(--spacing-lg);
+}
+
+.forecast-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  font-size: var(--font-size-sm);
+}
+
+/* ===== UTILITY CLASSES ===== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
