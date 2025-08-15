@@ -20,10 +20,9 @@ const store = useHouseStore()
 
 // Tab configuration
 const tabs = [
-  { key: 'focus', label: 'Focus' },
-  { key: 'daily', label: 'Daily Tasks' },
+  { key: 'focus', label: 'Activities' },    // Changed from 'Focus'
   { key: 'meals', label: 'Meals' },
-  { key: 'admin', label: 'Add tasks' }
+  { key: 'admin', label: 'Admin' }          // Changed from 'Add tasks'
 ]
 
 // Methods

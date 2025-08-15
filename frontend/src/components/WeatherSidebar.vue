@@ -1,22 +1,6 @@
 <template>
-  <div class="sidebar" :class="sidebarClasses">
-    <!-- Collapsed State: Just expand button -->
-    <div v-if="state === 'collapsed'" class="collapsed-content">
-      <button class="expand-button" @click="toggleState" title="Expand Weather">
-        🌤️
-      </button>
-    </div>
-
-    <!-- Default & Expanded States: Full content -->
-    <div v-else class="sidebar-content">
-      <!-- Header with toggle button -->
-      <div class="sidebar-header">
-        <h2 v-if="state === 'expanded'" class="sidebar-title">Weather</h2>
-        <button class="toggle-button" @click="toggleState" :title="toggleButtonTitle">
-          {{ toggleButtonIcon }}
-        </button>
-      </div>
-      
+  <div class="sidebar">
+    <div class="sidebar-content">
       <!-- DateTime Section -->
       <div class="datetime-section">
         <div class="day-date">{{ store.currentDayName }}, {{ store.currentMonth }} {{ store.currentDay }}</div>
@@ -43,9 +27,7 @@
         
         <!-- Forecast Section -->
         <div class="forecast-section">
-          <h4 v-if="state === 'expanded'" class="forecast-title">5-Day Forecast</h4>
-          
-          <div class="forecast-list" :class="{ 'forecast-expanded': state === 'expanded' }">
+          <div class="forecast-list">
             <div 
               v-for="day in store.weather.forecast" 
               :key="day.day"
@@ -55,14 +37,6 @@
               <div class="forecast-name">{{ day.day }}</div>
               <div class="forecast-temps">H: {{ day.high }} L: {{ day.low }}</div>
             </div>
-          </div>
-        </div>
-
-        <!-- Focus Items Preview (Default state only) -->
-        <div v-if="state === 'default' && store.focusItems.length > 0" class="focus-preview">
-          <div class="focus-header">
-            <span class="focus-count">{{ store.focusItems.length }}</span>
-            <span class="focus-label">items need attention</span>
           </div>
         </div>
 
@@ -89,52 +63,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useHouseStore } from '../stores/house.js'
-
-// Props
-const props = defineProps({
-  state: {
-    type: String,
-    default: 'default',
-    validator: (value) => ['collapsed', 'default', 'expanded'].includes(value)
-  }
-})
-
-// Emits
-const emit = defineEmits(['toggle-state'])
 
 // Store
 const store = useHouseStore()
 
-// Computed properties
-const sidebarClasses = computed(() => ({
-  'sidebar-collapsed': props.state === 'collapsed',
-  'sidebar-default': props.state === 'default',
-  'sidebar-expanded': props.state === 'expanded'
-}))
-
-const toggleButtonIcon = computed(() => {
-  switch (props.state) {
-    case 'default': return '⛶' // Expand
-    case 'expanded': return '⚏' // Collapse
-    default: return '🌤️'
-  }
-})
-
-const toggleButtonTitle = computed(() => {
-  switch (props.state) {
-    case 'default': return 'Expand Weather Panel'
-    case 'expanded': return 'Collapse Weather Panel'
-    default: return 'Show Weather'
-  }
-})
-
 // Methods
-function toggleState() {
-  emit('toggle-state')
-}
-
 function getWeatherEmoji(iconCode) {
   const iconMap = {
     '01d': '☀️', '01n': '🌙',
@@ -164,52 +98,9 @@ function formatWeatherTime(timestamp) {
   color: var(--text-white);
   display: flex;
   flex-direction: column;
-  transition: var(--transition-normal);
-  position: relative;
-  flex-shrink: 0;
-}
-
-/* State-specific widths */
-.sidebar-collapsed {
-  width: 50px;
-  padding: 10px 5px;
-}
-
-.sidebar-default {
   width: var(--sidebar-width);
-  padding: 15px 15px;
-}
-
-.sidebar-expanded {
-  width: 400px;
-  padding: 20px 20px;
-}
-
-/* Collapsed Content */
-.collapsed-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  justify-content: center;
-}
-
-.expand-button {
-  background: rgba(255,255,255,0.1);
-  border: none;
-  color: var(--text-white);
-  padding: 12px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 20px;
-  transition: var(--transition-normal);
-  min-height: var(--touch-target);
-  min-width: var(--touch-target);
-}
-
-.expand-button:hover {
-  background: rgba(255,255,255,0.2);
-  transform: scale(1.05);
+  padding: 15px;
+  flex-shrink: 0;
 }
 
 /* Sidebar Content */
@@ -217,38 +108,6 @@ function formatWeatherTime(timestamp) {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
-
-/* Header */
-.sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.sidebar-title {
-  font-family: var(--font-family-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.toggle-button {
-  background: rgba(255,255,255,0.1);
-  border: none;
-  color: var(--text-white);
-  padding: 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 18px;
-  transition: var(--transition-normal);
-  min-height: var(--touch-target);
-  min-width: var(--touch-target);
-}
-
-.toggle-button:hover {
-  background: rgba(255,255,255,0.2);
 }
 
 /* DateTime Section */
@@ -264,11 +123,6 @@ function formatWeatherTime(timestamp) {
   font-weight: 500;
 }
 
-.sidebar-expanded .day-date {
-  font-size: 24px;
-  margin-bottom: 12px;
-}
-
 .time-display {
   font-size: 36px;
   font-weight: 700;
@@ -276,11 +130,6 @@ function formatWeatherTime(timestamp) {
   text-shadow: 1px 1px 4px var(--accent-red);
   margin-bottom: 4px;
   line-height: 1;
-}
-
-.sidebar-expanded .time-display {
-  font-size: 64px;
-  margin-bottom: 20px;
 }
 
 /* Weather Section */
@@ -295,11 +144,6 @@ function formatWeatherTime(timestamp) {
   gap: 15px;
 }
 
-.sidebar-expanded .weather-section {
-  padding: 25px;
-  gap: 25px;
-}
-
 /* Current Weather */
 .weather-current {
   text-align: center;
@@ -310,22 +154,12 @@ function formatWeatherTime(timestamp) {
   margin-bottom: 10px;
 }
 
-.sidebar-expanded .weather-icon {
-  font-size: 80px;
-  margin-bottom: 15px;
-}
-
 .weather-desc {
   font-size: 20px;
   color: var(--text-white);
   margin-bottom: 15px;
   text-transform: capitalize;
   line-height: 1.4;
-}
-
-.sidebar-expanded .weather-desc {
-  font-size: 28px;
-  margin-bottom: 20px;
 }
 
 .temp-section {
@@ -339,21 +173,10 @@ function formatWeatherTime(timestamp) {
   color: var(--text-white);
 }
 
-.sidebar-expanded .temp-high,
-.sidebar-expanded .temp-low {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
 .weather-details {
   font-size: 14px;
   color: var(--text-white);
   line-height: 1.6;
-}
-
-.sidebar-expanded .weather-details {
-  font-size: 18px;
-  line-height: 1.8;
 }
 
 /* Forecast Section */
@@ -362,22 +185,10 @@ function formatWeatherTime(timestamp) {
   padding-top: 15px;
 }
 
-.forecast-title {
-  font-weight: 600;
-  margin-bottom: 15px;
-  font-size: 16px;
-}
-
 .forecast-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.forecast-list.forecast-expanded {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 15px;
 }
 
 .forecast-day {
@@ -385,16 +196,6 @@ function formatWeatherTime(timestamp) {
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
-}
-
-.forecast-expanded .forecast-day {
-  flex-direction: column;
-  text-align: center;
-  gap: 8px;
-  padding: 10px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 8px;
-  font-size: 14px;
 }
 
 .forecast-name {
@@ -407,47 +208,9 @@ function formatWeatherTime(timestamp) {
   font-size: 16px;
 }
 
-.forecast-expanded .forecast-icon {
-  font-size: 32px;
-}
-
 .forecast-temps {
   color: var(--text-white-muted);
   text-align: right;
-}
-
-/* Focus Preview */
-.focus-preview {
-  background: rgba(196, 12, 12, 0.2);
-  border: 1px solid rgba(196, 12, 12, 0.4);
-  border-radius: 8px;
-  padding: 12px;
-  text-align: center;
-}
-
-.focus-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.focus-count {
-  background: var(--accent-red);
-  color: var(--text-white);
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 12px;
-}
-
-.focus-label {
-  font-size: 12px;
-  color: var(--text-white-muted);
 }
 
 /* States */
@@ -484,6 +247,10 @@ function formatWeatherTime(timestamp) {
   background: #a00a0a;
 }
 
+.retry-button:active {
+  transform: scale(0.95);
+}
+
 /* Weather Updated */
 .weather-updated {
   text-align: center;
@@ -491,16 +258,5 @@ function formatWeatherTime(timestamp) {
   color: var(--text-white-light);
   margin-top: auto;
   padding-top: 10px;
-}
-
-.sidebar-expanded .weather-updated {
-  font-size: 12px;
-}
-
-/* Touch interactions */
-.expand-button:active,
-.toggle-button:active,
-.retry-button:active {
-  transform: scale(0.95);
 }
 </style>

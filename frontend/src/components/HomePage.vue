@@ -1,13 +1,10 @@
 <template>
-  <div class="container" :class="containerClasses">
-    <!-- Three-State Weather Sidebar -->
-    <WeatherSidebar 
-      :state="weatherState"
-      @toggle-state="toggleWeatherState"
-    />
+  <div class="container">
+    <!-- Weather Sidebar (Left Zone) -->
+    <WeatherSidebar />
     
-    <!-- Main Content Area -->
-    <div class="main-content" :class="contentClasses">
+    <!-- Main Content Area (Center + Right Zones) -->
+    <div class="main-content">
       <!-- Tab Navigation -->
       <TabNavigation />
       
@@ -20,80 +17,31 @@
 </template>
 
 <script setup>
-
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useHouseStore } from '../stores/house.js'
 import WeatherSidebar from '../components/WeatherSidebar.vue'
 import TabNavigation from '../components/TabNavigation.vue'
 
 // Import tab components
-import FocusView from '../components/FocusView.vue'
-import DailyTasksView from '../components/DailyTasksView.vue'
+import ActivitiesView from '../components/ActivitiesView.vue'
 import MealsView from '../components/MealsView.vue'
 import AdminView from '../components/AdminView.vue'
 
 // Store
 const store = useHouseStore()
 
-// Weather sidebar state management
-const weatherState = ref('default') // 'collapsed', 'default', 'expanded'
-
-// Auto-collapse timer (return to default after inactivity)
-let autoCollapseTimer = null
-const AUTO_COLLAPSE_DELAY = 300000 // 5 minutes
-
-// Tab component mapping
+// Tab component mapping - simplified
 const tabComponents = {
-  focus: FocusView,
-  daily: DailyTasksView,
+  focus: ActivitiesView,      
+  daily: ActivitiesView,      
   meals: MealsView,
   admin: AdminView
 }
 
 // Computed properties
 const currentTabComponent = computed(() => {
-  return tabComponents[store.activeTab] || FocusView
+  return tabComponents[store.activeTab] || ActivitiesView
 })
-
-const containerClasses = computed(() => ({
-  'weather-collapsed': weatherState.value === 'collapsed',
-  'weather-default': weatherState.value === 'default',
-  'weather-expanded': weatherState.value === 'expanded'
-}))
-
-const contentClasses = computed(() => ({
-  'content-collapsed': weatherState.value === 'expanded',
-  'content-default': weatherState.value === 'default',
-  'content-full': weatherState.value === 'collapsed'
-}))
-
-// Methods
-function toggleWeatherState() {
-  // Cycle through states: default → expanded → collapsed → default
-  const states = ['default', 'expanded', 'collapsed']
-  const currentIndex = states.indexOf(weatherState.value)
-  const nextIndex = (currentIndex + 1) % states.length
-  weatherState.value = states[nextIndex]
-  
-  console.log(`🌤️ Weather state: ${weatherState.value}`)
-  
-  // Reset auto-collapse timer
-  resetAutoCollapseTimer()
-}
-
-function resetAutoCollapseTimer() {
-  if (autoCollapseTimer) {
-    clearTimeout(autoCollapseTimer)
-  }
-  
-  // Only auto-collapse if not in default state
-  if (weatherState.value !== 'default') {
-    autoCollapseTimer = setTimeout(() => {
-      weatherState.value = 'default'
-      console.log('🕐 Auto-returned to default weather state')
-    }, AUTO_COLLAPSE_DELAY)
-  }
-}
 
 // Lifecycle
 onMounted(async () => {
@@ -110,9 +58,6 @@ onMounted(async () => {
   // Store cleanup function
   onUnmounted(() => {
     clearInterval(timeInterval)
-    if (autoCollapseTimer) {
-      clearTimeout(autoCollapseTimer)
-    }
   })
   
   console.log('✅ HomePage ready!')
@@ -120,7 +65,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Container Layout */
+/* Container Layout - Clean Three Zone Structure */
 .container {
   display: flex;
   width: var(--container-width);
@@ -129,52 +74,20 @@ onMounted(async () => {
   background: var(--bg-container);
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
   font-family: var(--font-family-primary);
-  transition: var(--transition-normal);
   overflow: hidden;
 }
 
-/* Weather State Classes */
-.container.weather-collapsed {
-  /* Weather sidebar is collapsed */
-}
-
-.container.weather-default {
-  /* Weather sidebar is normal size */
-}
-
-.container.weather-expanded {
-  /* Weather sidebar is expanded */
-}
-
-/* Main Content Area */
+/* Main Content Area (Center + Right zones) */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  transition: var(--transition-normal);
   min-width: 0; /* Allows flex child to shrink */
 }
 
-/* Content Area States */
-.main-content.content-full {
-  /* Weather collapsed - full content width */
-  margin-left: 0;
-}
-
-.main-content.content-default {
-  /* Default weather sidebar */
-  /* Default flex behavior */
-}
-
-.main-content.content-collapsed {
-  /* Weather expanded - reduced content width */
-  /* Content gets less space */
-}
-
-/* Content Area */
+/* Content Area - Where ActivitiesView renders */
 .content-area {
   flex: 1;
-  padding: 20px;
   overflow: hidden;
   background: var(--bg-content);
   display: flex;
@@ -188,20 +101,5 @@ onMounted(async () => {
     height: 100vh;
     margin: 0;
   }
-}
-
-/* Debug helpers (remove in production) */
-.container::before {
-  content: attr(class);
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(0,0,0,0.7);
-  color: white;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-  z-index: 1000;
-  pointer-events: none;
 }
 </style>
