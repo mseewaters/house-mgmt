@@ -141,9 +141,16 @@ function getPersonClass(memberId) {
   const member = store.familyMembers.find(m => m.member_id === memberId)
   if (!member) return 'person-unknown'
   
-  // Generate consistent color class based on member name
+  // Generate consistent color class based on member name (use more characters for uniqueness)
   const colors = ['person-blue', 'person-green', 'person-purple', 'person-orange', 'person-pink']
-  const index = (member.name?.charCodeAt(0) || 0) % colors.length
+  
+  // Use multiple characters from the name to create a more unique hash
+  let hash = 0
+  for (let i = 0; i < member.name.length; i++) {
+    hash += member.name.charCodeAt(i)
+  }
+  
+  const index = hash % colors.length
   return colors[index]
 }
 
@@ -167,10 +174,11 @@ async function toggleTaskCompletion(task) {
 async function undoTaskCompletion(completedTask) {
   try {
     console.log('🔄 Undoing task completion:', completedTask.task_name)
-    // TODO: Implement undo functionality in store and API
-    console.log('⚠️ Undo functionality not yet implemented')
+    await store.undoTaskCompletion(completedTask.task_id)
+    console.log('✅ Task completion undone successfully')
   } catch (error) {
     console.error('❌ Failed to undo task completion:', error)
+    // TODO: Show user-friendly error message
   }
 }
 
@@ -337,23 +345,23 @@ onMounted(async () => {
 }
 
 .person-initial {
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: bold;
   color: white;
   flex-shrink: 0;
 }
 
-.person-blue { background: #3b82f6; }
-.person-green { background: #10b981; }
+.person-blue { background: var(--accent-red); }
+.person-green { background: var(--bg-tab-nav); }
 .person-purple { background: #8b5cf6; }
-.person-orange { background: #f59e0b; }
-.person-pink { background: #ec4899; }
+.person-orange { background: var(--bg-tab-active); }
+.person-pink { background: var(--accent-success); }
 .person-unknown { background: #6b7280; }
 
 .task-meta {

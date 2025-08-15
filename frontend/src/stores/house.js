@@ -5,6 +5,40 @@ import { defineStore } from 'pinia'
 import { apiService } from '../services/api.js'
 import { timingService } from '../services/timingService.js'
 
+// Smart initials system - only use two letters when there's a conflict
+function getSmartInitials(allMembers) {
+  const initialsMap = new Map()
+  
+  // First pass: assign single letter initials
+  allMembers.forEach(member => {
+    if (!member.name) return
+    const firstLetter = member.name[0].toUpperCase()
+    
+    if (!initialsMap.has(firstLetter)) {
+      initialsMap.set(firstLetter, [])
+    }
+    initialsMap.get(firstLetter).push(member)
+  })
+  
+  // Second pass: resolve conflicts with two letters
+  const finalInitials = new Map()
+  
+  initialsMap.forEach((members, firstLetter) => {
+    if (members.length === 1) {
+      // No conflict - use single letter
+      finalInitials.set(members[0].member_id, firstLetter)
+    } else {
+      // Conflict - use two letters for conflicting names
+      members.forEach(member => {
+        const twoLetter = member.name.substring(0, 2).toUpperCase()
+        finalInitials.set(member.member_id, twoLetter)
+      })
+    }
+  })
+  
+  return finalInitials
+}
+
 export const useHouseStore = defineStore('house', {
   state: () => ({
     // Loading states
@@ -39,8 +73,10 @@ export const useHouseStore = defineStore('house', {
   }),
 
 getters: {
-  // Enhanced focus items with proper timing logic
+  // Enhanced focus items with smart initials
   focusItems: (state) => {
+    const smartInitials = getSmartInitials(state.familyMembers)
+    
     return state.dailyTasks
       .filter(task => task.status !== 'Completed')
       .map(task => {
@@ -48,7 +84,7 @@ getters: {
         return {
           ...task,
           member_name: member?.name || 'Unknown',
-          member_avatar: member?.name?.[0] || '?',
+          member_avatar: smartInitials.get(task.assigned_to) || '?',
           is_overdue: timingService.isTaskOverdue(task),
           is_due_now: timingService.isTaskDueNow(task),
           priority: timingService.getTaskPriority(task),
@@ -61,6 +97,8 @@ getters: {
 
   // Separate overdue tasks
   overdueTasks: (state) => {
+    const smartInitials = getSmartInitials(state.familyMembers)
+    
     return state.dailyTasks
       .filter(task => task.status !== 'Completed')
       .map(task => {
@@ -68,7 +106,7 @@ getters: {
         return {
           ...task,
           member_name: member?.name || 'Unknown',
-          member_avatar: member?.name?.[0] || '?',
+          member_avatar: smartInitials.get(task.assigned_to) || '?',
           is_overdue: timingService.isTaskOverdue(task),
           display_time: timingService.formatDisplayTime(task.due_time || task.due),
           overdue_message: timingService.getOverdueMessage(task)
@@ -86,6 +124,8 @@ getters: {
 
   // Current period tasks (due now, not overdue)
   currentPeriodTasks: (state) => {
+    const smartInitials = getSmartInitials(state.familyMembers)
+    
     return state.dailyTasks
       .filter(task => task.status !== 'Completed')
       .map(task => {
@@ -93,7 +133,7 @@ getters: {
         return {
           ...task,
           member_name: member?.name || 'Unknown',
-          member_avatar: member?.name?.[0] || '?',
+          member_avatar: smartInitials.get(task.assigned_to) || '?',
           is_overdue: timingService.isTaskOverdue(task),
           is_due_now: timingService.isTaskDueNow(task),
           display_time: timingService.formatDisplayTime(task.due_time || task.due)
@@ -113,6 +153,8 @@ getters: {
 
   // Completed tasks for today
   completedTasks: (state) => {
+    const smartInitials = getSmartInitials(state.familyMembers)
+    
     return state.dailyTasks
       .filter(task => task.status === 'Completed')
       .map(task => {
@@ -120,7 +162,7 @@ getters: {
         return {
           ...task,
           member_name: member?.name || 'Unknown',
-          member_avatar: member?.name?.[0] || '?',
+          member_avatar: smartInitials.get(task.assigned_to) || '?',
           completed_display_time: task.completed_at ? 
             new Date(task.completed_at).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}) : 
             'Unknown time'
@@ -205,7 +247,7 @@ getters: {
       console.log('🏠 Initializing house data...')
       await Promise.all([
         this.loadFamilyMembers(),
-        this.loadDailyTasks(), // Load all tasks, no date filter
+        this.loadDailyTasks(), // Will now use explicit today's date
         this.loadWeather()
       ])
       this.updateDateTime()
@@ -233,10 +275,13 @@ getters: {
       this.errors.tasks = null
       
       try {
-        // If no date specified, get all tasks (don't pass date parameter)
-        // If date specified, use that specific date
-        this.dailyTasks = await apiService.getDailyTasks(date)
-        console.log(`✅ Loaded ${this.dailyTasks.length} daily tasks${date ? ` for ${date}` : ' (all dates)'}`)
+        // Always use explicit date - either provided date or today
+        const targetDate = date || new Date().toISOString().split('T')[0] // YYYY-MM-DD
+        
+        console.log(`🗓️ Loading daily tasks for explicit date: ${targetDate}`)
+        this.dailyTasks = await apiService.getDailyTasks(targetDate)
+        
+        console.log(`✅ Loaded ${this.dailyTasks.length} daily tasks for ${targetDate}`)
       } catch (error) {
         this.errors.tasks = error.message
         console.error('❌ Failed to load daily tasks:', error)
@@ -244,6 +289,7 @@ getters: {
         this.loading.tasks = false
       }
     },
+
 
     // Load weather
     async loadWeather() {
@@ -264,18 +310,37 @@ getters: {
     // Complete a task
     async completeTask(taskId) {
       try {
+        console.log('🔄 Completing task ID:', taskId)
+        
         const result = await apiService.completeTask(taskId)
+        console.log('✅ Task completed successfully:', result)
         
-        // Update local state
-        const taskIndex = this.dailyTasks.findIndex(t => t.task_id === taskId)
-        if (taskIndex !== -1) {
-          this.dailyTasks[taskIndex] = result.task
-        }
+        // Reload all daily tasks to get fresh state
+        await this.loadDailyTasks()
+        console.log('🔄 Tasks reloaded after completion')
         
-        console.log('✅ Task completed:', result.task.task_name)
         return result
       } catch (error) {
         console.error('❌ Failed to complete task:', error)
+        throw error
+      }
+    },
+
+    // Undo task completion - now uses real backend API
+    async undoTaskCompletion(taskId) {
+      try {
+        console.log('🔄 Undoing task completion via backend:', taskId)
+        
+        const result = await apiService.undoTaskCompletion(taskId)
+        console.log('✅ Task completion undone successfully:', result)
+        
+        // Reload all daily tasks to get fresh state from backend
+        await this.loadDailyTasks()
+        console.log('🔄 Tasks reloaded after undo')
+        
+        return result
+      } catch (error) {
+        console.error('❌ Failed to undo task completion:', error)
         throw error
       }
     },

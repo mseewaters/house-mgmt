@@ -220,3 +220,53 @@ async def generate_daily_tasks(date_param: str = Query(..., alias="date")):
             status_code=500,
             detail="An error occurred while generating daily tasks"
         )
+    
+@router.put("/{task_id}/uncomplete", response_model=DailyTaskModel)
+async def uncomplete_daily_task(task_id: str):
+    """
+    Mark a daily task as uncompleted (revert to Pending)
+    
+    Path Parameters:
+        task_id: ID of the task to uncomplete
+        
+    Returns:
+        Updated daily task with Pending status
+        
+    Raises:
+        404: Task not found
+        500: Internal server error
+    """
+    try:
+        log_info("daily_task_uncomplete_started", task_id=task_id)
+        
+        # Update task status back to pending
+        daily_dal = DailyTaskDAL()
+        updated_task = daily_dal.uncomplete_daily_task(task_id)
+        
+        if not updated_task:
+            log_info("daily_task_not_found_for_uncomplete", task_id=task_id)
+            raise HTTPException(
+                status_code=404,
+                detail="Task not found"
+            )
+        
+        log_info(
+            "daily_task_uncompleted_successfully",
+            task_id=task_id,
+            task_name=updated_task.task_name
+        )
+        
+        return updated_task
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_error(
+            "daily_task_uncomplete_internal_error",
+            task_id=task_id,
+            error=str(e)
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while uncompleting the task"
+        )

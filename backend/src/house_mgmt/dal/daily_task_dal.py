@@ -241,7 +241,7 @@ class DailyTaskDAL:
         Args:
             task_id: Task ID to update
             status: New status
-            completed_at: Completion timestamp (if status is Completed)
+            completed_at: Completion timestamp (if status is Completed), None to clear
             
         Returns:
             Updated DailyTaskModel if successful, None otherwise
@@ -256,16 +256,13 @@ class DailyTaskDAL:
             
             if self.use_dynamodb:
                 # Update in DynamoDB
-                update_expression = "SET #status = :status, updated_at = :updated_at"
+                update_expression = "SET #status = :status, updated_at = :updated_at, completed_at = :completed_at"
                 expression_values = {
                     ':status': status,
-                    ':updated_at': now.isoformat()
+                    ':updated_at': now.isoformat(),
+                    ':completed_at': completed_at.isoformat() if completed_at else None  # Always set completed_at
                 }
                 expression_names = {'#status': 'status'}
-                
-                if completed_at:
-                    update_expression += ", completed_at = :completed_at"
-                    expression_values[':completed_at'] = completed_at.isoformat()
                 
                 response = self.table.update_item(
                     Key={
@@ -283,8 +280,7 @@ class DailyTaskDAL:
                 item = self._stored_tasks[task_id]
                 item['status'] = status
                 item['updated_at'] = now.isoformat()
-                if completed_at:
-                    item['completed_at'] = completed_at.isoformat()
+                item['completed_at'] = completed_at.isoformat() if completed_at else None  # Always set completed_at
                 updated_item = item
             
             return self._item_to_model(updated_item)
@@ -314,3 +310,47 @@ class DailyTaskDAL:
             created_at=datetime.fromisoformat(item['created_at']),
             updated_at=datetime.fromisoformat(item['updated_at'])
         )
+    
+    def uncomplete_daily_task(self, task_id: str) -> Optional[DailyTaskModel]:
+        """
+        Mark a daily task as uncompleted (revert to Pending status)
+        """
+        try:
+            # First get the current task to find its date
+            current_task = self.get_daily_task_by_id(task_id)
+            if not current_task:
+                return None
+            
+            now = datetime.now(timezone.utc)
+            
+            if self.use_dynamodb:
+                # Update with explicit None for completed_at
+                response = self.table.update_item(  # Use self.table, not self._get_table()
+                    Key={
+                        'PK': f'DAILY#{current_task.date}',
+                        'SK': f'TASK#{task_id}'
+                    },
+                    UpdateExpression='SET #status = :status, completed_at = :completed_at, updated_at = :updated_at',
+                    ExpressionAttributeNames={'#status': 'status'},
+                    ExpressionAttributeValues={
+                        ':status': 'Pending',
+                        ':completed_at': None,  # Explicitly set to None
+                        ':updated_at': now.isoformat()
+                    },
+                    ReturnValues='ALL_NEW'
+                )
+                
+                # Convert response to model
+                updated_item = response['Attributes']
+                return self._item_to_model(updated_item)
+            else:
+                # Handle in-memory storage
+                item = self._stored_tasks[task_id]
+                item['status'] = 'Pending'
+                item['completed_at'] = None
+                item['updated_at'] = now.isoformat()
+                return self._item_to_model(item)
+                
+        except Exception as e:
+            log_error("daily_task_uncomplete_failed", task_id=task_id, error=str(e))
+            return None

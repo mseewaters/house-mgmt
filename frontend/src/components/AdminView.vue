@@ -693,7 +693,7 @@ onMounted(async () => {
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid #d1d5db;
+  border: 0px solid #d1d5db;
   background: white;
   color: #374151;
 }
@@ -710,7 +710,7 @@ onMounted(async () => {
   gap: 8px;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn {
   padding: 4px 12px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -718,7 +718,18 @@ onMounted(async () => {
   font-size: 12px;
   font-weight: 500;
   background: white;
-  color: #374151;
+  color: var(--bg-sidebar);
+  transition: all 0.15s ease;
+}
+.delete-btn {
+  padding: 4px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  background: white;
+  color: var(--accent-red);
   transition: all 0.15s ease;
 }
 

@@ -105,6 +105,17 @@ export const apiService = {
     return response.data
   },
 
+  async undoTaskCompletion(taskId) {
+    try {
+      const response = await api.put(`/api/daily-tasks/${taskId}/uncomplete`)
+      console.log('✅ Task uncompleted via backend API')
+      return response.data
+    } catch (error) {
+      console.error('❌ API Error - Undo task completion:', error)
+      throw error
+    }
+  },
+
   // Weather
   async getWeather() {
     const response = await api.get('/api/weather')

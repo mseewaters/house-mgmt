@@ -6,6 +6,7 @@ Following existing API patterns from family_member and recurring_task APIs
 import pytest
 from fastapi.testclient import TestClient
 from moto import mock_aws
+from datetime import datetime, timezone, date
 import boto3
 
 
@@ -234,3 +235,61 @@ def test_generate_daily_tasks_invalid_date():
     # Assert
     assert response.status_code == 422
     assert "Invalid date format" in response.text
+
+@mock_aws
+def test_uncomplete_daily_task_success():
+    """Test PUT /api/daily-tasks/{id}/uncomplete reverts completed task to pending"""
+    # Arrange - Create and complete a task first
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+    table_name = 'house-mgmt-test'
+    table = dynamodb.create_table(
+        TableName=table_name,
+        KeySchema=[
+            {'AttributeName': 'PK', 'KeyType': 'HASH'},
+            {'AttributeName': 'SK', 'KeyType': 'RANGE'}
+        ],
+        AttributeDefinitions=[
+            {'AttributeName': 'PK', 'AttributeType': 'S'},
+            {'AttributeName': 'SK', 'AttributeType': 'S'}
+        ],
+        BillingMode='PAY_PER_REQUEST'
+    )
+    
+    from dal.daily_task_dal import DailyTaskDAL
+    from models.daily_task import DailyTaskCreate
+    
+    daily_dal = DailyTaskDAL(table_name=table_name)
+    task_data = DailyTaskCreate(
+        task_name="Test uncomplete",
+        assigned_to="member-uuid-123",
+        recurring_task_id="recurring-uuid-456",
+        date="2024-08-02",
+        due_time="Morning",
+        status="Pending",
+        category="Medication",
+        overdue_when="1 hour"
+    )
+    created_task = daily_dal.create_daily_task(task_data)
+    
+    # Complete the task first
+    completed_task = daily_dal.update_daily_task_status(
+        created_task.task_id,
+        "Completed",
+        completed_at=datetime.now(timezone.utc)
+    )
+    
+    import os
+    os.environ['DYNAMODB_TABLE'] = table_name
+    
+    from main import app
+    client = TestClient(app)
+    
+    # Act - Uncomplete the task
+    response = client.put(f"/api/daily-tasks/{created_task.task_id}/uncomplete")
+    
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "Pending"
+    assert data["completed_at"] is None
+    assert data["task_id"] == created_task.task_id
