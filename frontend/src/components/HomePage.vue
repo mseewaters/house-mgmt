@@ -47,9 +47,6 @@ const currentTabComponent = computed(() => {
 onMounted(async () => {
   console.log('🏠 HomePage mounted - initializing data...')
   
-  // Initialize store data
-  await store.initializeData()
-  
   // Start time updates
   const timeInterval = setInterval(() => {
     store.updateDateTime()
@@ -59,9 +56,13 @@ onMounted(async () => {
   onUnmounted(() => {
     clearInterval(timeInterval)
   })
-  
+    
+  // Initialize store data
+  await store.initializeData()
+
   console.log('✅ HomePage ready!')
 })
+
 </script>
 
 <style scoped>

@@ -15,7 +15,7 @@ class DailyTaskCreate(BaseModel):
     assigned_to: str = Field(..., description="Family member UUID")
     recurring_task_id: str = Field(..., description="Source recurring task UUID")
     date: str = Field(..., description="Task date (YYYY-MM-DD)")
-    due_time: Literal["Morning", "Evening"] = Field(..., description="When task is due")
+    due_time: Literal["Morning", "Afternoon","Evening"] = Field(..., description="When task is due")
     status: Literal["Pending", "Completed", "Overdue", "Cleared", "Skipped"] = Field(..., description="Task status")
     category: Literal["Medication", "Feeding", "Health", "Cleaning", "Other"] = Field(..., description="Task category")
     overdue_when: Literal["Immediate", "1 hour", "6 hours", "1 day", "3 days", "7 days"] = Field(..., description="When task becomes overdue")

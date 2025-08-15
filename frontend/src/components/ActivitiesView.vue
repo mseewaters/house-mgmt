@@ -3,57 +3,49 @@
     <!-- CENTER ZONE: Tasks (flex-grow to fill available space) -->
     <div class="center-zone">
       <!-- Overdue Section -->
-      <div v-if="overdueTasks.length > 0" class="task-section overdue">
+      <div v-if="store.overdueTasks.length > 0" class="task-section overdue">
         <h3 class="section-header overdue">OVERDUE</h3>
         <div class="task-list">
           <div 
-            v-for="task in overdueTasks" 
-            :key="task.id"
+            v-for="task in store.overdueTasks" 
+            :key="task.task_id"
             class="task-item overdue"
             @click="toggleTaskCompletion(task)"
           >
-            <div class="task-checkbox overdue" :class="{ completed: task.completed }"></div>
-            <div class="task-content">
-              <div class="task-name">{{ task.name }}</div>
-              <div class="task-person">
-                <div class="person-initial" :class="getPersonClass(task.assignedTo)">
-                  {{ getPersonInitial(task.assignedTo) }}
-                </div>
-                {{ getPersonName(task.assignedTo) }}
-              </div>
+            <div class="task-checkbox overdue" :class="{ completed: task.status === 'Completed' }"></div>
+            <div class="task-name">{{ task.task_name }}</div>
+            <div class="person-initial" :class="getPersonClass(task.assigned_to)">
+              {{ task.member_avatar }}
             </div>
-            <div class="task-meta">{{ formatOverdueTime(task.dueTime) }}</div>
+            <div class="task-person-name">{{ task.member_name }}</div>
+            <div class="task-meta">{{ task.overdue_message }}</div>
           </div>
         </div>
       </div>
 
       <!-- Current Period Section -->
-      <div v-if="currentPeriodTasks.length > 0" class="task-section current">
-        <h3 class="section-header">{{ currentPeriodHeader }}</h3>
+      <div v-if="store.currentPeriodTasks.length > 0" class="task-section current">
+        <h3 class="section-header">{{ store.currentPeriodName }}</h3>
         <div class="task-list">
           <div 
-            v-for="task in currentPeriodTasks" 
-            :key="task.id"
+            v-for="task in store.currentPeriodTasks" 
+            :key="task.task_id"
             class="task-item"
             @click="toggleTaskCompletion(task)"
           >
-            <div class="task-checkbox" :class="{ completed: task.completed }"></div>
-            <div class="task-content">
-              <div class="task-name">{{ task.name }}</div>
-              <div class="task-person">
-                <div class="person-initial" :class="getPersonClass(task.assignedTo)">
-                  {{ getPersonInitial(task.assignedTo) }}
-                </div>
-                {{ getPersonName(task.assignedTo) }}
-              </div>
+            <div class="task-checkbox" :class="{ completed: task.status === 'Completed' }"></div>
+            <div class="task-name">{{ task.task_name }}</div>
+            <div class="person-initial" :class="getPersonClass(task.assigned_to)">
+              {{ task.member_avatar }}
             </div>
-            <div class="task-meta">{{ formatTaskTime(task.dueTime) }}</div>
+            <div class="task-person-name">{{ task.member_name }}</div>
+            <div class="task-meta">{{ task.display_time }}</div>
           </div>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div v-if="overdueTasks.length === 0 && currentPeriodTasks.length === 0" class="empty-state">
+      <div v-if="store.overdueTasks.length === 0 && store.currentPeriodTasks.length === 0" class="empty-state">
         <div class="empty-state-icon">✨</div>
         <h3>All caught up!</h3>
         <p>No tasks due right now.</p>
@@ -64,19 +56,20 @@
     <div class="right-zone">
       <!-- Completed Today Section -->
       <div class="completed-section">
+        <div class="gradient-bar"></div>
         <h4 class="right-section-header">Completed Today</h4>
         <div class="completed-list">
           <div 
-            v-for="task in completedTasks" 
-            :key="task.id"
+            v-for="task in store.completedTasks" 
+            :key="task.task_id"
             class="completed-item"
           >
-            <div class="person-initial" :class="getPersonClass(task.assignedTo)">
-              {{ getPersonInitial(task.assignedTo) }}
+            <div class="person-initial" :class="getPersonClass(task.assigned_to)">
+              {{ task.member_avatar }}
             </div>
             <div class="completed-content">
-              <div class="completed-task">{{ task.name }}</div>
-              <div class="completed-time">{{ formatCompletedTime(task.completedAt) }}</div>
+              <div class="completed-task">{{ task.task_name }}</div>
+              <div class="completed-time">{{ task.completed_display_time }}</div>
             </div>
             <button 
               class="undo-btn" 
@@ -87,29 +80,30 @@
             </button>
           </div>
         </div>
-        <div v-if="completedTasks.length === 0" class="empty-message">
+        <div v-if="store.completedTasks.length === 0" class="empty-message">
           No tasks completed yet today
         </div>
       </div>
 
       <!-- Coming Up Section -->
       <div class="coming-up-section">
-        <h4 class="right-section-header">Coming Up - {{ nextPeriodName }}</h4>
+        <div class="gradient-bar"></div>
+        <h4 class="right-section-header">Coming Up - {{ store.nextPeriodName }}</h4>
         <div class="coming-up-list">
           <div 
             v-for="task in upcomingTasks" 
-            :key="task.id"
+            :key="task.task_id"
             class="coming-up-item"
           >
-            <div class="person-initial" :class="getPersonClass(task.assignedTo)">
-              {{ getPersonInitial(task.assignedTo) }}
+            <div class="person-initial" :class="getPersonClass(task.assigned_to)">
+              {{ task.member_avatar }}
             </div>
-            <div class="coming-up-task">{{ task.name }}</div>
-            <div class="coming-up-time">{{ formatUpcomingTime(task.dueTime) }}</div>
+            <div class="coming-up-task">{{ task.task_name }}</div>
+            <div class="coming-up-time">{{ task.display_time }}</div>
           </div>
         </div>
         <div v-if="upcomingTasks.length === 0" class="empty-message">
-          No {{ nextPeriodName.toLowerCase() }} tasks scheduled
+          No {{ store.nextPeriodName.toLowerCase() }} tasks scheduled
         </div>
       </div>
     </div>
@@ -123,242 +117,72 @@ import { useHouseStore } from '../stores/house.js'
 // Store
 const store = useHouseStore()
 
-// Mock data for development - replace with actual API calls
-const mockTasks = ref([
-  {
-    id: '1',
-    name: 'Evening pills',
-    assignedTo: 'bob',
-    dueTime: '2024-08-12T21:00:00Z',
-    completed: false,
-    isOverdue: true
-  },
-  {
-    id: '2', 
-    name: 'Lunch vitamins',
-    assignedTo: 'marjorie',
-    dueTime: '2024-08-13T12:00:00Z',
-    completed: false,
-    isOverdue: true
-  },
-  {
-    id: '3',
-    name: 'Walk Layla',
-    assignedTo: 'bob',
-    dueTime: '2024-08-13T10:00:00Z',
-    completed: false,
-    isOverdue: false
-  },
-  {
-    id: '4',
-    name: 'Morning vitamins',
-    assignedTo: 'marjorie',
-    dueTime: '2024-08-13T09:00:00Z',
-    completed: false,
-    isOverdue: false
-  },
-  {
-    id: '5',
-    name: 'Feed Sadie',
-    assignedTo: 'marjorie',
-    dueTime: '2024-08-13T08:00:00Z',
-    completed: false,
-    isOverdue: false
-  }
-])
-
-const mockCompletedTasks = ref([
-  {
-    id: 'c1',
-    name: 'Morning pills',
-    assignedTo: 'bob',
-    completedAt: '2024-08-13T08:45:00Z'
-  },
-  {
-    id: 'c2',
-    name: 'Breakfast',
-    assignedTo: 'lucy',
-    completedAt: '2024-08-13T08:30:00Z'
-  },
-  {
-    id: 'c3',
-    name: 'Morning walk',
-    assignedTo: 'layla',
-    completedAt: '2024-08-13T07:45:00Z'
-  }
-])
-
-const mockUpcomingTasks = ref([
-  {
-    id: 'u1',
-    name: 'Afternoon vitamins',
-    assignedTo: 'marjorie',
-    dueTime: '2024-08-13T14:00:00Z'
-  },
-  {
-    id: 'u2',
-    name: 'Afternoon walk',
-    assignedTo: 'layla',
-    dueTime: '2024-08-13T15:00:00Z'
-  },
-  {
-    id: 'u3',
-    name: 'Treat time',
-    assignedTo: 'lucy',
-    dueTime: '2024-08-13T16:00:00Z'
-  },
-  {
-    id: 'u4',
-    name: 'Dinner prep',
-    assignedTo: 'sadie',
-    dueTime: '2024-08-13T17:00:00Z'
-  }
-])
-
-// Family member data
-const familyMembers = {
-  bob: { name: 'Bob', type: 'person', initial: 'B' },
-  marjorie: { name: 'Marjorie', type: 'person', initial: 'M' },
-  layla: { name: 'Layla', type: 'pet', initial: 'La' },
-  lucy: { name: 'Lucy', type: 'pet', initial: 'Lu' },
-  sadie: { name: 'Sadie', type: 'pet', initial: 'S' }
-}
-
-// Computed properties for filtering tasks
-const overdueTasks = computed(() => {
-  return mockTasks.value.filter(task => task.isOverdue && !task.completed)
-})
-
-const currentPeriodTasks = computed(() => {
-  return mockTasks.value.filter(task => !task.isOverdue && !task.completed)
-})
-
-const completedTasks = computed(() => {
-  return mockCompletedTasks.value
-})
-
+// Mock upcoming tasks for now (will replace with real logic later)
 const upcomingTasks = computed(() => {
-  return mockUpcomingTasks.value
-})
-
-// Dynamic period headers based on current time
-const currentPeriodHeader = computed(() => {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'MORNING (until 12pm)'
-  if (hour < 18) return 'AFTERNOON (until 6pm)'
-  return 'EVENING (until 10pm)'
-})
-
-const nextPeriodName = computed(() => {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'Afternoon'
-  if (hour < 18) return 'Evening'
-  return 'Tomorrow Morning'
-})
-
-// Helper methods
-function getPersonInitial(personKey) {
-  return familyMembers[personKey]?.initial || '?'
-}
-
-function getPersonName(personKey) {
-  return familyMembers[personKey]?.name || 'Unknown'
-}
-
-function getPersonClass(personKey) {
-  const member = familyMembers[personKey]
-  if (!member) return ''
-  
-  if (member.type === 'pet') {
-    return `pet-${personKey}`
-  }
-  return ''
-}
-
-function formatOverdueTime(dueTime) {
-  const date = new Date(dueTime)
-  const now = new Date()
-  const diffHours = Math.floor((now - date) / (1000 * 60 * 60))
-  
-  if (diffHours < 24) {
-    return `${diffHours}h ago`
-  } else {
-    const diffDays = Math.floor(diffHours / 24)
-    return `${diffDays}d ago`
-  }
-}
-
-function formatTaskTime(dueTime) {
-  return new Date(dueTime).toLocaleTimeString([], { 
-    hour: 'numeric', 
-    minute: '2-digit' 
-  })
-}
-
-function formatCompletedTime(completedAt) {
-  return new Date(completedAt).toLocaleTimeString([], { 
-    hour: 'numeric', 
-    minute: '2-digit' 
-  })
-}
-
-function formatUpcomingTime(dueTime) {
-  return new Date(dueTime).toLocaleTimeString([], { 
-    hour: 'numeric', 
-    minute: '2-digit' 
-  })
-}
-
-// Task interaction methods
-function toggleTaskCompletion(task) {
-  // Optimistic UI update
-  task.completed = !task.completed
-  
-  if (task.completed) {
-    // Move to completed list
-    mockCompletedTasks.value.unshift({
-      id: `c${Date.now()}`,
-      name: task.name,
-      assignedTo: task.assignedTo,
-      completedAt: new Date().toISOString()
+  // For now, show tasks that aren't overdue or due now
+  return store.dailyTasks
+    .filter(task => task.status !== 'Completed')
+    .filter(task => !store.overdueTasks.some(overdue => overdue.task_id === task.task_id))
+    .filter(task => !store.currentPeriodTasks.some(current => current.task_id === task.task_id))
+    .slice(0, 5) // Show max 5 upcoming
+    .map(task => {
+      const member = store.familyMembers.find(m => m.member_id === task.assigned_to)
+      return {
+        ...task,
+        member_name: member?.name || 'Unknown',
+        member_avatar: member?.name?.[0] || '?',
+        display_time: task.due_time || task.due || 'Anytime'
+      }
     })
-    
-    // Remove from main task list
-    const index = mockTasks.value.findIndex(t => t.id === task.id)
-    if (index > -1) {
-      mockTasks.value.splice(index, 1)
-    }
-  }
+})
+
+// Helper functions
+function getPersonClass(memberId) {
+  const member = store.familyMembers.find(m => m.member_id === memberId)
+  if (!member) return 'person-unknown'
   
-  // TODO: Call actual API endpoint
-  // await store.updateTaskCompletion(task.id, task.completed)
+  // Generate consistent color class based on member name
+  const colors = ['person-blue', 'person-green', 'person-purple', 'person-orange', 'person-pink']
+  const index = (member.name?.charCodeAt(0) || 0) % colors.length
+  return colors[index]
 }
 
-function undoTaskCompletion(completedTask) {
-  // Remove from completed list
-  const index = mockCompletedTasks.value.findIndex(t => t.id === completedTask.id)
-  if (index > -1) {
-    mockCompletedTasks.value.splice(index, 1)
+// Task actions
+async function toggleTaskCompletion(task) {
+  try {
+    if (task.status === 'Completed') {
+      console.log('⚠️ Task already completed:', task.task_name)
+      return
+    }
+    
+    console.log('🔄 Completing task:', task.task_name)
+    await store.completeTask(task.task_id)
+    console.log('✅ Task completed successfully')
+  } catch (error) {
+    console.error('❌ Failed to complete task:', error)
+    // TODO: Show user-friendly error message
   }
-  
-  // Add back to main task list
-  mockTasks.value.push({
-    id: completedTask.id.replace('c', ''),
-    name: completedTask.name,
-    assignedTo: completedTask.assignedTo,
-    dueTime: new Date().toISOString(), // TODO: Use original due time
-    completed: false,
-    isOverdue: false // TODO: Calculate if actually overdue
-  })
-  
-  // TODO: Call actual API endpoint
-  // await store.undoTaskCompletion(completedTask.id)
+}
+
+async function undoTaskCompletion(completedTask) {
+  try {
+    console.log('🔄 Undoing task completion:', completedTask.task_name)
+    // TODO: Implement undo functionality in store and API
+    console.log('⚠️ Undo functionality not yet implemented')
+  } catch (error) {
+    console.error('❌ Failed to undo task completion:', error)
+  }
 }
 
 // Load data on mount
-onMounted(() => {
-  // TODO: Load actual tasks from API
-  // await store.loadDailyTasks()
+onMounted(async () => {
+  console.log('📱 ActivitiesView mounted')
+  // Data is already loaded by HomePage, but refresh if needed
+  if (store.dailyTasks.length === 0) {
+    console.log('🔄 No tasks found, refreshing...')
+    await store.loadDailyTasks()
+  }
+  console.log(`📋 Activities ready - ${store.dailyTasks.length} tasks loaded`)
 })
 </script>
 
@@ -451,7 +275,7 @@ onMounted(() => {
 }
 
 .task-item.overdue {
-  background: var(--task-bg-overdue);
+  background: var(--task-bg-overdue, #fef2f2);
 }
 
 .task-item.overdue:hover {
@@ -469,240 +293,198 @@ onMounted(() => {
   transition: all 0.2s ease;
 }
 
-.task-checkbox.overdue {
-  border-color: var(--accent-red);
-}
-
 .task-checkbox.completed {
-  background: var(--accent-success);
-  border-color: var(--accent-success);
+  background: var(--accent-green, #10b981);
+  border-color: var(--accent-green, #10b981);
 }
 
 .task-checkbox.completed::after {
   content: '✓';
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
 }
 
-.task-content {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.task-checkbox.overdue {
+  border-color: var(--accent-red, #ef4444);
 }
 
 .task-name {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
+  font-size: var(--font-size-base);
+  flex: 1;
+  min-width: 0;
+}
+
+.task-person-name {
+  font-size: 14px;
+  color: #6b7280;
+  margin-left: 8px;
+  white-space: nowrap;
 }
 
 .task-person {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .person-initial {
-  width: 20px;
-  height: 20px;
-  background: var(--accent-success);
-  color: white;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: bold;
+  color: white;
+  flex-shrink: 0;
 }
+
+.person-blue { background: #3b82f6; }
+.person-green { background: #10b981; }
+.person-purple { background: #8b5cf6; }
+.person-orange { background: #f59e0b; }
+.person-pink { background: #ec4899; }
+.person-unknown { background: #6b7280; }
 
 .task-meta {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
+  font-size: 12px;
+  color: #9ca3af;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: 12px;
 }
 
-/* RIGHT ZONE STYLES */
-.right-section-header {
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
+}
+
+/* RIGHT ZONE SECTIONS */
+.gradient-bar {
+  height: 4px;
   background: linear-gradient(90deg, #B85450, #95A985, #9CAAB6);
-  color: var(--text-white);
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  margin: 0 0 var(--spacing-sm) 0;
+  border-radius: 2px;
+  margin-bottom: 8px;
+}
+
+.right-section-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-radius: 4px;
+  margin-bottom: 8px;
+  padding: 0 12px 4px 12px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.completed-section {
-  border-left: 4px solid var(--border-light);
-  padding-left: var(--spacing-md);
+.completed-section, .coming-up-section {
+  flex: 1;
+  min-height: 200px;
+  padding: 0;
 }
 
-.completed-list {
+.completed-list, .coming-up-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
 }
 
-.completed-item {
+.completed-item, .coming-up-item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-container);
-  border-radius: 4px;
-  font-size: var(--font-size-sm);
-  opacity: 0.8;
-  min-height: var(--touch-target);
-  transition: background-color 0.15s ease;
+  gap: 8px;
+  padding: 6px 12px;
+  background: transparent;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px;
+  transition: all 0.15s ease;
+  min-height: 32px;
 }
 
-.completed-item:hover {
+.completed-item:last-child, .coming-up-item:last-child {
+  border-bottom: none;
+}
+
+.completed-item:hover, .coming-up-item:hover {
   background: #f8f9fa;
-}
-
-.completed-item:nth-child(even) {
-  background: #fcfcfc;
-}
-
-.completed-item:nth-child(even):hover {
-  background: #f0f1f2;
 }
 
 .completed-content {
   flex: 1;
-}
-
-.completed-task {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.completed-time {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.undo-btn {
-  background: none;
-  border: 1px solid var(--border-light);
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 12px;
-  transition: all 0.2s ease;
-}
-
-.undo-btn:hover {
-  background: var(--accent-red);
-  color: white;
-  border-color: var(--accent-red);
-}
-
-.coming-up-section {
-  border-left: 4px solid var(--border-light);
-  padding-left: var(--spacing-md);
-}
-
-.coming-up-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.coming-up-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-container);
-  border-radius: 4px;
-  font-size: var(--font-size-sm);
-  min-height: var(--touch-target);
-  transition: background-color 0.15s ease;
-}
-
-.coming-up-item:hover {
-  background: #f8f9fa;
-}
-
-.coming-up-item:nth-child(even) {
-  background: #fcfcfc;
-}
-
-.coming-up-item:nth-child(even):hover {
-  background: #f0f1f2;
-}
-
-.coming-up-time {
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  margin-left: auto;
-  min-width: 40px;
-  text-align: right;
+  min-width: 0;
 }
 
 .coming-up-task {
   flex: 1;
-  color: var(--text-primary);
+  min-width: 0;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.2;
+}
+
+.completed-task {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 1px;
+  line-height: 1.2;
+}
+
+.completed-time, .coming-up-time {
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.undo-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.undo-btn:hover {
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 .empty-message {
   text-align: center;
-  color: var(--text-muted);
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-lg);
-  opacity: 0.7;
-}
-
-/* Pet-specific colors for two-letter codes */
-.pet-layla .person-initial { background: #8B5CF6; }
-.pet-lucy .person-initial { background: #06B6D4; }
-.pet-sadie .person-initial { background: #F59E0B; }
-
-/* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
-.empty-state-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
-.empty-state h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-}
-
-.empty-state p {
-  font-size: 1rem;
-}
-
-/* Touch interactions */
-.task-item:active {
-  transform: scale(0.98);
+  padding: 16px 12px;
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 12px;
+  background: transparent;
+  border: 1px dashed #d1d5db;
+  border-radius: 4px;
+  margin: 8px 12px;
 }
 
 /* Responsive adjustments */
@@ -713,7 +495,8 @@ onMounted(() => {
   
   .right-zone {
     width: 100%;
-    max-height: 400px;
+    border-left: none;
+    border-top: 1px solid var(--border-light);
   }
 }
 </style>

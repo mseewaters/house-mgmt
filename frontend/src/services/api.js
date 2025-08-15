@@ -33,7 +33,7 @@ api.interceptors.response.use(
   }
 )
 
-// API Functions
+// Export all API functions as a service object
 export const apiService = {
   // Health check
   async checkHealth() {
@@ -41,7 +41,7 @@ export const apiService = {
     return response.data
   },
 
-  // Family Members
+  // Family Members - Using correct endpoints from your backend
   async getFamilyMembers() {
     const response = await api.get('/api/family-members')
     return response.data
@@ -57,15 +57,40 @@ export const apiService = {
     return response.data
   },
 
+  async updateFamilyMember(memberId, memberData) {
+    const response = await api.put(`/api/family-members/${memberId}`, memberData)
+    return response.data
+  },
+
+  async deleteFamilyMember(memberId) {
+    await api.delete(`/api/family-members/${memberId}`)
+    return true
+  },
+
   // Recurring Tasks
   async getRecurringTasks() {
     const response = await api.get('/api/recurring-tasks')
     return response.data
   },
 
+  async getRecurringTask(taskId) {
+    const response = await api.get(`/api/recurring-tasks/${taskId}`)
+    return response.data
+  },
+
   async createRecurringTask(taskData) {
     const response = await api.post('/api/recurring-tasks', taskData)
     return response.data
+  },
+
+  async updateRecurringTask(taskId, taskData) {
+    const response = await api.put(`/api/recurring-tasks/${taskId}`, taskData)
+    return response.data
+  },
+
+  async deleteRecurringTask(taskId) {
+    await api.delete(`/api/recurring-tasks/${taskId}`)
+    return true
   },
 
   // Daily Tasks
@@ -84,6 +109,18 @@ export const apiService = {
   async getWeather() {
     const response = await api.get('/api/weather')
     return response.data
+  },
+
+  // Test connectivity
+  async testApiConnectivity() {
+    try {
+      const response = await api.get('/api/health')
+      console.log('✅ API connectivity test passed:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ API connectivity test failed:', error)
+      throw error
+    }
   }
 }
 
@@ -98,6 +135,9 @@ export const apiTest = {
       
       const family = await apiService.getFamilyMembers()
       console.log('✅ Family Members:', family.length, 'found')
+      
+      const recurringTasks = await apiService.getRecurringTasks()
+      console.log('✅ Recurring Tasks:', recurringTasks.length, 'found')
       
       const tasks = await apiService.getDailyTasks()
       console.log('✅ Daily Tasks:', tasks.length, 'found')
@@ -122,6 +162,10 @@ export const apiTest = {
     return await apiService.getFamilyMembers()
   },
 
+  async recurringTasks() {
+    return await apiService.getRecurringTasks()
+  },
+
   async tasks() {
     return await apiService.getDailyTasks()
   },
@@ -137,3 +181,5 @@ if (typeof window !== 'undefined') {
   window.api = apiService
   console.log('🔧 API utilities: window.apiTest.runAll() or window.api.getFamilyMembers()')
 }
+
+export default apiService
