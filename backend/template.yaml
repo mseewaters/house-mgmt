@@ -107,7 +107,7 @@ Resources:
     Properties:
       FunctionName: !Sub "house-mgmt-task-generator-${Environment}"
       CodeUri: src/house_mgmt/
-      Handler: tasks.generate_daily_tasks.handler
+      Handler: lambdas.task_generation_handler.lambda_handler
       Events:
         DailySchedule:
           Type: Schedule
