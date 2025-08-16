@@ -120,16 +120,6 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-.sidebar {
-  width: var(--sidebar-width);
-  background-color: var(--bg-sidebar);
-  color: var(--text-white);
-  padding: var(--spacing-xl);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
 .container {
   display: flex;
   width: 100vw;
