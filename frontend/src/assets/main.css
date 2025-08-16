@@ -64,10 +64,18 @@
   /* Component Standards from Prototype */
   --touch-target: 44px;
   --sidebar-width: 270px;
-  --container-width: 1280px;
-  --container-height: 800px;
+  --container-width: 100vw;
+  --container-height: 100vh;
   --avatar-size: 40px;
   --progress-ring-size: 50px;
+
+  /* Add responsive breakpoints */
+  --tablet-min-width: 1024px;
+  --fire-tablet-width: 1280px;
+  
+  /* Dynamic content widths based on viewport */
+  --center-zone-min: 400px;
+  --right-zone-width: clamp(350px, 30vw, 400px);
 
   /* Border Radius */
   --radius-sm: 0.25rem;
@@ -122,11 +130,24 @@ body {
   overflow-y: auto;
 }
 
+.container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  background: var(--bg-container);
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  font-family: var(--font-family-primary);
+  overflow: hidden;
+  min-width: var(--tablet-min-width);
+}
+
 .main-content {
   flex: 1;
   background-color: var(--bg-container);
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Critical: Allows flex child to shrink properly */
   overflow: hidden;
 }
 
@@ -175,9 +196,10 @@ body {
 }
 
 .member-cards {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--spacing-lg);
-  flex-wrap: wrap;
+  width: 100%;
 }
 
 .member-card {

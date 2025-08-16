@@ -179,6 +179,7 @@ onMounted(async () => {
   display: flex;
   height: 100%;
   gap: var(--spacing-lg);
+  min-width: 0; /* Critical for flex shrinking */
 }
 
 /* CENTER ZONE: Tasks - Dynamic flex layout */
@@ -187,8 +188,9 @@ onMounted(async () => {
   padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;
-  min-width: 400px;
-  min-height: 0;
+  min-width: var(--center-zone-min);
+  max-width: calc(100vw - var(--sidebar-width) - var(--right-zone-width) - 60px);
+  overflow: hidden;
 }
 
 /* RIGHT ZONE: Completed + Coming Up */
@@ -200,6 +202,7 @@ onMounted(async () => {
   flex-direction: column;
   gap: var(--spacing-xl);
   border-left: 1px solid var(--border-light);
+  flex-shrink: 0; /* Prevent shrinking below min width */
 }
 
 /* TASK SECTIONS - Dynamic heights */
@@ -208,6 +211,7 @@ onMounted(async () => {
   flex-direction: column;
   min-height: 0;
   margin-bottom: var(--spacing-lg);
+  overflow: hidden; /* Prevent section overflow */
 }
 
 .task-section.overdue {
@@ -228,6 +232,7 @@ onMounted(async () => {
   gap: 2px;
   overflow-y: auto;
   flex: 1; /* Fill available section space */
+  max-height: calc(50vh - 100px); /* Prevent excessive growth */
 }
 
 .section-header {
@@ -484,15 +489,50 @@ onMounted(async () => {
 }
 
 /* Responsive adjustments */
-@media (max-width: 1024px) {
-  .activities-layout {
-    flex-direction: column;
+@media screen and (min-width: 1200px) and (max-width: 1300px) {
+  /* Likely Fire 10 HD dimensions */
+  .right-zone {
+    width: 350px; /* Smaller right zone for Fire tablets */
+  }
+  
+  .center-zone {
+    min-width: 350px; /* Reduce min width for center */
+  }
+  
+  /* Adjust sidebar for Fire tablets */
+  .sidebar {
+    width: 250px;
+  }
+}
+
+@media screen and (min-width: 1400px) {
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
   }
   
   .right-zone {
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid var(--border-light);
+    width: 420px;
   }
 }
+
+/* Tablet-Specific Touch Optimizations */
+@media (pointer: coarse) {
+  /* Larger touch targets for tablets */
+  .task-item {
+    min-height: 50px; /* Slightly larger than 44px minimum */
+    padding: var(--spacing-md);
+  }
+  
+  .nav-tab {
+    min-height: 50px;
+    padding: var(--spacing-lg) var(--spacing-xl);
+  }
+  
+  .task-checkbox {
+    width: 24px;
+    height: 24px; /* Larger checkboxes for easier tapping */
+  }
+}
+
 </style>
