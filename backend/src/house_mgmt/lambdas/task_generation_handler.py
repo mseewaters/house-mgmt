@@ -5,6 +5,7 @@ Triggered by EventBridge at midnight local time to generate tomorrow's tasks
 """
 import json
 import os
+import pytz
 from datetime import datetime, timezone, date, timedelta
 from typing import Dict, Any
 from services.daily_task_generation_service import DailyTaskGenerationService
@@ -25,7 +26,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         Dict with statusCode, body containing generation results
         
     Process:
-        1. Get tomorrow's date
+        1. Get target date
         2. Generate daily tasks from active recurring templates
         3. Log execution details and performance metrics
         4. Return success/error response
@@ -38,16 +39,18 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             "task_generation_lambda_started",
             request_id=request_id,
             event_source=event.get('source'),
-            trigger_time=start_time.isoformat()
+            trigger_time=start_time.isoformat(),
+            cron_explanation="1 AM EST (6 AM UTC) generates tasks for current local day"
         )
         
-        # Get tomorrow's date for task generation
-        target_date = get_tomorrow_date()
+        # Get target date for task generation
+        target_date = get_target_date()
         
         log_info(
             "task_generation_target_date_determined",
             target_date=target_date,
-            request_id=request_id
+            request_id=request_id,
+            note="Generating tasks for kitchen local date"
         )
         
         # Initialize task generation service
@@ -149,24 +152,40 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
 
 
-def get_tomorrow_date() -> str:
+def get_target_date() -> str:
     """
-    Get tomorrow's date in YYYY-MM-DD format
+    Get target date in local timezone (EST/EDT) in YYYY-MM-DD format
     
     Returns:
-        Tomorrow's date as ISO format string (YYYY-MM-DD)
+        Target date as ISO format string (YYYY-MM-DD) in local timezone
         
     Note:
-        Uses local system time to determine "tomorrow".
-        In deployment, Lambda should be configured with appropriate timezone.
+        Kitchen tablet is in EST/EDT. Lambda runs at 1 AM EST (6 AM UTC)
+        to generate tasks for the current local day (which is "tomorrow" in UTC).
     """
     try:
-        tomorrow = date.today() + timedelta(days=1)
-        return tomorrow.isoformat()
+        # Define kitchen timezone (handles EST/EDT automatically)
+        kitchen_tz = pytz.timezone('America/New_York')
+        
+        # Get current time in kitchen timezone
+        kitchen_now = datetime.now(kitchen_tz)
+        
+        # Get today's date in kitchen timezone
+        # At 1 AM EST, we want tasks for TODAY (not tomorrow)
+        kitchen_today = kitchen_now.date()
+        
+        log_info(
+            "calculated_target_date",
+            utc_now=datetime.now(timezone.utc).isoformat(),
+            kitchen_now=kitchen_now.isoformat(),
+            kitchen_today=kitchen_today.isoformat(),
+            kitchen_timezone=str(kitchen_tz)
+        )
+        
+        return kitchen_today.isoformat()
         
     except Exception as e:
-        log_error("Failed to calculate tomorrow's date", error=str(e))
-        # Fallback to UTC calculation
+        log_error("Failed to calculate target date", error=str(e))
+        # Fallback: Use UTC date
         utc_now = datetime.now(timezone.utc)
-        tomorrow_utc = (utc_now + timedelta(days=1)).date()
-        return tomorrow_utc.isoformat()
+        return utc_now.date().isoformat()

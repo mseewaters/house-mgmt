@@ -5,6 +5,7 @@ Following Best-practices.md: Lambda handlers, EventBridge events, structured log
 ALL TESTS USE @mock_aws for consistent mocking
 """
 import pytest
+import pytz
 from moto import mock_aws
 import boto3
 import json
@@ -76,8 +77,8 @@ def test_task_generation_lambda_handler_generates_tasks_for_tomorrow():
     
     from lambdas.task_generation_handler import lambda_handler
     
-    # Act - Execute Lambda with tomorrow's date
-    with patch('lambdas.task_generation_handler.get_tomorrow_date') as mock_tomorrow:
+    # Act - Execute Lambda with Target date
+    with patch('lambdas.task_generation_handler.get_target_date') as mock_tomorrow:
         # Mock tomorrow as Sunday so weekly task generates too
         mock_tomorrow.return_value = "2024-08-04"  # Sunday
         
@@ -187,7 +188,7 @@ def test_task_generation_lambda_prevents_duplicate_generation():
     from lambdas.task_generation_handler import lambda_handler
     
     # Act - Run Lambda twice for same date
-    with patch('lambdas.task_generation_handler.get_tomorrow_date') as mock_tomorrow:
+    with patch('lambdas.task_generation_handler.get_target_date') as mock_tomorrow:
         mock_tomorrow.return_value = "2024-08-05"
         
         # First run - should generate task
@@ -237,19 +238,33 @@ def test_task_generation_lambda_handles_database_error():
     assert 'An error occurred during task generation' in body['error']
 
 
-def test_get_tomorrow_date_utility():
-    """Test utility function for getting tomorrow's date - WILL FAIL until implemented"""
-    from lambdas.task_generation_handler import get_tomorrow_date
+def test_get_target_date_utility():
+    """Test utility function for getting target date in local timezone"""
+    from lambdas.task_generation_handler import get_target_date
+    import pytz
+    from datetime import datetime, timezone
     
     # Act
-    tomorrow = get_tomorrow_date()
+    target_date = get_target_date()
     
-    # Assert - Should return tomorrow's date in YYYY-MM-DD format
-    expected_tomorrow = (date.today() + timedelta(days=1)).isoformat()
-    assert tomorrow == expected_tomorrow
-    assert len(tomorrow) == 10  # YYYY-MM-DD format
-    assert tomorrow.count('-') == 2
-
+    # Assert - Should return today's date in local timezone (America/New_York)
+    local_tz = pytz.timezone('America/New_York')
+    local_now = datetime.now(local_tz)
+    expected_date = local_now.date().isoformat()
+    
+    assert target_date == expected_date
+    assert len(target_date) == 10  # YYYY-MM-DD format
+    assert target_date.count('-') == 2
+    
+    # Additional validation: Should be a valid date string
+    parsed_date = datetime.strptime(target_date, '%Y-%m-%d')
+    assert parsed_date is not None
+    
+    # Log for debugging timezone differences
+    utc_today = datetime.now(timezone.utc).date()
+    print(f"Local timezone date: {target_date}")
+    print(f"UTC date: {utc_today.isoformat()}")
+    print(f"Local timezone: {local_tz}")
 
 @mock_aws
 def test_task_generation_lambda_logs_execution_details():

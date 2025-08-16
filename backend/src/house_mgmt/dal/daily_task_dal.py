@@ -5,13 +5,61 @@ Following technical design schema: PK = "DAILY#date", SK = "TASK#uuid"
 """
 import boto3
 import os
+import pytz
 from typing import List, Optional, Dict
 from datetime import datetime, timezone
 from botocore.exceptions import ClientError
 from models.daily_task import DailyTaskCreate, DailyTaskModel
 from utils.logging import log_info, log_error
 
-
+def calculate_due_time_in_timezone(task_date_kitchen, due_time_str):
+    """
+    Calculate the actual due time in kitchen timezone
+    
+    Args:
+        task_date_kitchen: Localized datetime for the task date
+        due_time_str: String like "Morning", "Evening", "9:00 AM", etc.
+        
+    Returns:
+        Localized datetime representing the actual due time
+    """
+    due_time_lower = due_time_str.lower()
+    
+    # Default time mappings for common patterns
+    if 'morning' in due_time_lower:
+        # Morning tasks due at 12:00 PM (noon) kitchen time
+        return task_date_kitchen.replace(hour=12, minute=0, second=0, microsecond=0)
+    elif 'lunch' in due_time_lower:
+        # Lunch tasks due at 1:00 PM kitchen time
+        return task_date_kitchen.replace(hour=13, minute=0, second=0, microsecond=0)
+    elif 'afternoon' in due_time_lower:
+        # Afternoon tasks due at 6:00 PM kitchen time
+        return task_date_kitchen.replace(hour=18, minute=0, second=0, microsecond=0)
+    elif 'evening' in due_time_lower:
+        # Evening tasks due at 11:00 PM kitchen time
+        return task_date_kitchen.replace(hour=23, minute=0, second=0, microsecond=0)
+    elif 'night' in due_time_lower:
+        # Night tasks due at 2:00 AM next day kitchen time
+        next_day = task_date_kitchen + timedelta(days=1)
+        return next_day.replace(hour=2, minute=0, second=0, microsecond=0)
+    else:
+        # Try to parse specific time (e.g., "9:00 AM", "3:30 PM")
+        import re
+        time_match = re.match(r'(\d{1,2}):?(\d{0,2})\s*(AM|PM)', due_time_str, re.IGNORECASE)
+        if time_match:
+            hours, minutes, period = time_match.groups()
+            hour = int(hours)
+            minute = int(minutes) if minutes else 0
+            
+            if period.upper() == 'PM' and hour != 12:
+                hour += 12
+            elif period.upper() == 'AM' and hour == 12:
+                hour = 0
+                
+            return task_date_kitchen.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        else:
+            # Default: Morning (12:00 PM)
+            return task_date_kitchen.replace(hour=12, minute=0, second=0, microsecond=0)
 class DailyTaskDAL:
     """DAL for daily task operations with DynamoDB persistence"""
     
@@ -58,6 +106,22 @@ class DailyTaskDAL:
             # Generate UTC timestamps (Best-practices.md requirement)
             now = datetime.now(timezone.utc)
             task_id = str(uuid.uuid4())
+
+            # Calculate due time in kitchen timezone first
+            kitchen_tz = pytz.timezone('America/New_York')
+            
+            # Parse task date in kitchen timezone
+            task_date_local = datetime.strptime(task_data.date, '%Y-%m-%d')
+            task_date_kitchen = kitchen_tz.localize(task_date_local)
+            
+            # Calculate actual due time based on due_time
+            due_time_kitchen = calculate_due_time_in_timezone(
+                task_date_kitchen, 
+                task_data.due_time
+            )
+        
+            # Convert to UTC for storage
+            due_time_utc = due_time_kitchen.astimezone(timezone.utc)            
             
             # Calculate overdue and clear timestamps based on overdue_when
             overdue_delta_hours = {
@@ -71,8 +135,25 @@ class DailyTaskDAL:
             
             from datetime import timedelta
             overdue_hours = overdue_delta_hours.get(task_data.overdue_when, 1)
-            overdue_at = now + timedelta(hours=overdue_hours)
-            clear_at = now + timedelta(days=1)  # Clear next day by default
+            overdue_at = due_time_utc + timedelta(hours=overdue_hours)
+            
+            # Calculate clear_at (next day at kitchen midnight = 5 AM UTC)
+            next_day_kitchen = task_date_kitchen + timedelta(days=1)
+            next_midnight_kitchen = next_day_kitchen.replace(hour=0, minute=0, second=0, microsecond=0)
+            clear_at = next_midnight_kitchen.astimezone(timezone.utc)
+
+            log_info(
+                "calculated_task_timestamps",
+                task_date=task_data.date,
+                due_time=task_data.due_time,
+                task_date_kitchen=task_date_kitchen.isoformat(),
+                due_time_kitchen=due_time_kitchen.isoformat(),
+                due_time_utc=due_time_utc.isoformat(),
+                overdue_at=overdue_at.isoformat(),
+                clear_at=clear_at.isoformat(),
+                overdue_when=task_data.overdue_when,
+                overdue_hours=overdue_hours
+            )
             
             # Create DynamoDB item following technical design schema
             item = {
@@ -354,3 +435,5 @@ class DailyTaskDAL:
         except Exception as e:
             log_error("daily_task_uncomplete_failed", task_id=task_id, error=str(e))
             return None
+        
+  
