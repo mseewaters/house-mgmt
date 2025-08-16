@@ -112,7 +112,7 @@ Resources:
         DailySchedule:
           Type: Schedule
           Properties:
-            Schedule: "cron(5 0 ? * * *)"  # 5 AM UTC = Midnight EST
+            Schedule: "cron(5 6 ? * * *)"  # 5 AM UTC = Midnight EST
             Description: "Generate daily tasks at local midnight"
       Policies:
         - DynamoDBCrudPolicy:
