@@ -81,6 +81,17 @@ export const useHouseStore = defineStore('house', {
   }),
 
 getters: {
+
+  // Family members with smart initials applied
+  familyMembersWithInitials: (state) => {
+    const smartInitials = getSmartInitials(state.familyMembers)
+    
+    return state.familyMembers.map(member => ({
+      ...member,
+      member_avatar: smartInitials.get(member.member_id) || '?'
+    }))
+  },
+
   // Enhanced focus items with smart initials
   focusItems: (state) => {
     const smartInitials = getSmartInitials(state.familyMembers)
@@ -147,16 +158,43 @@ getters: {
           display_time: timingService.formatDisplayTime(task.due_time || task.due)
         }
       })
-      .filter(task => !task.is_overdue && (task.is_due_now || task.status === 'Pending'))
+      .filter(task => !task.is_overdue && task.is_due_now)
       .sort((a, b) => {
-        // Sort due now first, then by member name
-        if (a.is_due_now && !b.is_due_now) return -1
-        if (!a.is_due_now && b.is_due_now) return 1
+        // Sort by member name, then by task name
         if (a.member_name !== b.member_name) {
           return a.member_name.localeCompare(b.member_name)
         }
         return a.task_name.localeCompare(b.task_name)
       })
+  },
+
+  // Upcoming tasks (not overdue, not due now, with smart initials)
+  upcomingTasks: (state) => {
+    const smartInitials = getSmartInitials(state.familyMembers)
+    
+    return state.dailyTasks
+      .filter(task => task.status !== 'Completed')
+      .map(task => {
+        const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
+        return {
+          ...task,
+          member_name: member?.name || 'Unknown',
+          member_avatar: smartInitials.get(task.assigned_to) || '?',
+          is_overdue: timingService.isTaskOverdue(task),
+          is_due_now: timingService.isTaskDueNow(task),
+          is_for_next_period: timingService.isTaskForNextPeriod(task),
+          display_time: timingService.formatDisplayTime(task.due_time || task.due)
+        }
+      })
+      .filter(task => !task.is_overdue && !task.is_due_now && task.is_for_next_period)
+      .slice(0, 10) // Show max 10 upcoming
+      .sort((a, b) => {
+          // Sort by member name, then by task name
+          if (a.member_name !== b.member_name) {
+            return a.member_name.localeCompare(b.member_name)
+          }
+          return a.task_name.localeCompare(b.task_name)
+        }) 
   },
 
   // Completed tasks for today
@@ -188,17 +226,17 @@ getters: {
   currentPeriodName: () => {
     const hour = new Date().getHours()
     if (hour < 12) return 'This Morning'
-    if (hour < 17) return 'This Afternoon' 
-    if (hour < 21) return 'This Evening'
+    if (hour < 18) return 'This Afternoon' 
+    if (hour < 24) return 'This Evening'
     return 'Tonight'
   },
 
   // Get next period name
   nextPeriodName: () => {
     const hour = new Date().getHours()
-    if (hour < 11) return 'This Afternoon'
-    if (hour < 16) return 'This Evening'
-    if (hour < 20) return 'Tonight'
+    if (hour < 12) return 'This Afternoon'
+    if (hour < 18) return 'This Evening'
+    if (hour < 24) return 'Tonight'
     return 'Tomorrow Morning'
   },
 

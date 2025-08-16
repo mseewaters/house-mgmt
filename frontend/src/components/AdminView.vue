@@ -38,14 +38,14 @@
         
         <div class="table-body">
           <div 
-            v-for="member in store.familyMembers" 
+            v-for="member in store.familyMembersWithInitials" 
             :key="member.member_id"
             class="table-row"
           >
             <div class="col-name">
               <div class="member-info">
                 <div class="person-initial" :class="getPersonClass(member.member_id)">
-                  {{ member.name?.[0] || '?' }}
+                  {{ member.member_avatar }}
                 </div>
                 {{ member.name }}
               </div>

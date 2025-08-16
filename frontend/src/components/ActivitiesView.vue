@@ -91,7 +91,7 @@
         <h4 class="right-section-header">Coming Up - {{ store.nextPeriodName }}</h4>
         <div class="coming-up-list">
           <div 
-            v-for="task in upcomingTasks" 
+            v-for="task in store.upcomingTasks" 
             :key="task.task_id"
             class="coming-up-item"
           >
@@ -102,7 +102,7 @@
             <div class="coming-up-time">{{ task.display_time }}</div>
           </div>
         </div>
-        <div v-if="upcomingTasks.length === 0" class="empty-message">
+        <div v-if="store.upcomingTasks.length === 0" class="empty-message">
           No {{ store.nextPeriodName.toLowerCase() }} tasks scheduled
         </div>
       </div>
@@ -111,30 +111,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useHouseStore } from '../stores/house.js'
 
 // Store
 const store = useHouseStore()
-
-// Mock upcoming tasks for now (will replace with real logic later)
-const upcomingTasks = computed(() => {
-  // For now, show tasks that aren't overdue or due now
-  return store.dailyTasks
-    .filter(task => task.status !== 'Completed')
-    .filter(task => !store.overdueTasks.some(overdue => overdue.task_id === task.task_id))
-    .filter(task => !store.currentPeriodTasks.some(current => current.task_id === task.task_id))
-    .slice(0, 5) // Show max 5 upcoming
-    .map(task => {
-      const member = store.familyMembers.find(m => m.member_id === task.assigned_to)
-      return {
-        ...task,
-        member_name: member?.name || 'Unknown',
-        member_avatar: member?.name?.[0] || '?',
-        display_time: task.due_time || task.due || 'Anytime'
-      }
-    })
-})
 
 // Helper functions
 function getPersonClass(memberId) {
@@ -200,12 +181,14 @@ onMounted(async () => {
   gap: var(--spacing-lg);
 }
 
-/* CENTER ZONE: Tasks */
+/* CENTER ZONE: Tasks - Dynamic flex layout */
 .center-zone {
   flex: 1;
   padding: var(--spacing-lg);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   min-width: 400px;
+  min-height: 0;
 }
 
 /* RIGHT ZONE: Completed + Coming Up */
@@ -219,19 +202,32 @@ onMounted(async () => {
   border-left: 1px solid var(--border-light);
 }
 
-/* TASK SECTIONS - Compact List Design */
+/* TASK SECTIONS - Dynamic heights */
 .task-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   margin-bottom: var(--spacing-lg);
 }
 
 .task-section.overdue {
   border-left: 4px solid var(--accent-red);
   padding-left: var(--spacing-md);
+  flex: 0 1 auto; /* Don't grow much, but can shrink */
 }
 
 .task-section.current {
   border-left: 4px solid var(--border-light);
   padding-left: var(--spacing-md);
+  flex: 1; /* Take remaining space */
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  flex: 1; /* Fill available section space */
 }
 
 .section-header {
@@ -248,12 +244,6 @@ onMounted(async () => {
 
 .section-header.overdue {
   background: var(--accent-red);
-}
-
-.task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 
 .task-item {

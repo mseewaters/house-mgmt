@@ -109,6 +109,53 @@ export class TimingService {
   }
 
   /**
+   * Determine if a task is specifically for the next time period
+   * @param {Object} task - Daily task object
+   * @returns {boolean} - True if task is scheduled for the next period
+   */
+  isTaskForNextPeriod(task) {
+    if (task.status === 'Completed') return false
+    
+    const dueTime = task.due_time || task.due || 'Anytime'
+    const taskName = task.task_name?.toLowerCase() || ''
+    const nextPeriod = this.getNextPeriodType()
+
+    // DEBUG: Log what we're checking
+    console.log(`🔍 Task: "${task.task_name}", Due: "${dueTime}", Next period: "${nextPeriod}", Current hour: ${this.currentHour}`)
+
+    
+    // Check if task matches the next period (case-insensitive)
+    let matches = false
+    if (nextPeriod === 'afternoon') {
+      matches = dueTime.toLowerCase().includes('afternoon') || taskName.includes('afternoon')
+    } else if (nextPeriod === 'evening') {
+      matches = dueTime.toLowerCase().includes('evening') || taskName.includes('evening')
+    } else if (nextPeriod === 'morning') {
+      matches = dueTime.toLowerCase().includes('morning') || taskName.includes('morning')
+    }
+    
+    console.log(`  ✅ Task "${task.task_name}" matches next period (${nextPeriod}): ${matches}`)
+    return matches
+  }
+
+  /**
+   * Get the type of the next time period (for filtering tasks)
+   * @returns {string} - 'morning', 'afternoon', 'evening', or 'night'
+   */
+  getNextPeriodType() {
+    const hour = this.currentHour
+    // Morning period = 12am-11:59am (0-11)
+    // Afternoon period = 12pm-5:59pm (12-17) 
+    // Evening period = 6pm-11:59pm (18-23)
+    
+    if (hour >= 0 && hour <= 11) return 'afternoon'    // Morning -> next is afternoon
+    if (hour >= 12 && hour <= 17) return 'evening'     // Afternoon -> next is evening  
+    if (hour >= 18 && hour <= 23) return 'morning'     // Evening -> next is morning (tomorrow)
+    
+    return 'afternoon' // fallback
+  }
+
+  /**
    * Get display priority for task ordering
    * @param {Object} task - Daily task object
    * @returns {number} - Priority score (higher = more important)

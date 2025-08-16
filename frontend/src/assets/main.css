@@ -229,10 +229,6 @@ body {
 }
 
 /* ===== TASK LIST ===== */
-.task-list {
-  max-height: 200px;
-  overflow-y: auto;
-}
 
 .task-item {
   display: flex;
