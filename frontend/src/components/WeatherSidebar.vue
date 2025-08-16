@@ -157,7 +157,7 @@ function formatWeatherTime(timestamp) {
 }
 
 .weather-icon {
-  font-size: clamp(50px, 8vw, 70px); /* Responsive icon size */
+  font-size: clamp(40px, 6vw, 60px); /* Responsive icon size */
   margin-bottom: 0px;
   line-height: 1;
 }
@@ -292,9 +292,11 @@ function formatWeatherTime(timestamp) {
     gap: 2px; /* Very tight spacing on short screens */
   }
   
-  /* Hide weather updated on very short screens */
+  /* Ensure timestamp shows on Fire tablets */
   .weather-updated {
-    display: none;
+    font-size: 9px;
+    margin-top: var(--spacing-xs);
+    padding-top: var(--spacing-xs);
   }
 }
 
