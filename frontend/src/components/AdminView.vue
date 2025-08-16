@@ -356,9 +356,15 @@ function getPersonClass(memberId) {
   const member = store.familyMembers.find(m => m.member_id === memberId)
   if (!member) return 'person-unknown'
   
+  // Generate unique color class based on member's position in familyMembers array
   const colors = ['person-blue', 'person-green', 'person-purple', 'person-orange', 'person-pink']
-  const index = (member.name?.charCodeAt(0) || 0) % colors.length
-  return colors[index]
+  
+  // Find the index of this member in the familyMembers array
+  const memberIndex = store.familyMembers.findIndex(m => m.member_id === memberId)
+  
+  // Use the member's position to assign a unique color (cycling through if more members than colors)
+  const colorIndex = memberIndex % colors.length
+  return colors[colorIndex]
 }
 
 function getAssignedMemberName(memberId) {
@@ -681,11 +687,11 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 
-.person-blue { background: #3b82f6; }
-.person-green { background: #10b981; }
-.person-purple { background: #8b5cf6; }
-.person-orange { background: #f59e0b; }
-.person-pink { background: #ec4899; }
+.person-blue { background: var(--accent-red); }
+.person-green { background: var(--bg-tab-nav); }
+.person-purple { background: var(--accent-blue); }
+.person-orange { background: var(--bg-tab-active); }
+.person-pink { background: var(--accent-success); }
 .person-unknown { background: #6b7280; }
 
 .status-badge {

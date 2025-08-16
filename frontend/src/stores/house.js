@@ -39,6 +39,14 @@ function getSmartInitials(allMembers) {
   return finalInitials
 }
 
+// Get today's date in local timezone (YYYY-MM-DD format)
+function getLocalDateString(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export const useHouseStore = defineStore('house', {
   state: () => ({
     // Loading states
@@ -276,7 +284,7 @@ getters: {
       
       try {
         // Always use explicit date - either provided date or today
-        const targetDate = date || new Date().toISOString().split('T')[0] // YYYY-MM-DD
+        const targetDate = date || getLocalDateString() // Local date in YYYY-MM-DD
         
         console.log(`🗓️ Loading daily tasks for explicit date: ${targetDate}`)
         this.dailyTasks = await apiService.getDailyTasks(targetDate)

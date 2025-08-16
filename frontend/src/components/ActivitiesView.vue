@@ -141,17 +141,15 @@ function getPersonClass(memberId) {
   const member = store.familyMembers.find(m => m.member_id === memberId)
   if (!member) return 'person-unknown'
   
-  // Generate consistent color class based on member name (use more characters for uniqueness)
+  // Generate unique color class based on member's position in familyMembers array
   const colors = ['person-blue', 'person-green', 'person-purple', 'person-orange', 'person-pink']
   
-  // Use multiple characters from the name to create a more unique hash
-  let hash = 0
-  for (let i = 0; i < member.name.length; i++) {
-    hash += member.name.charCodeAt(i)
-  }
+  // Find the index of this member in the familyMembers array
+  const memberIndex = store.familyMembers.findIndex(m => m.member_id === memberId)
   
-  const index = hash % colors.length
-  return colors[index]
+  // Use the member's position to assign a unique color (cycling through if more members than colors)
+  const colorIndex = memberIndex % colors.length
+  return colors[colorIndex]
 }
 
 // Task actions
@@ -237,15 +235,15 @@ onMounted(async () => {
 }
 
 .section-header {
-  background: linear-gradient(90deg, #B85450, #95A985, #9CAAB6);
+  background: linear-gradient(90deg, var(--accent-red), var(--accent-success), var(--text-muted));
   color: var(--text-white);
   padding: var(--spacing-sm) var(--spacing-md);
   font-weight: 700;
   font-size: var(--font-size-base);
   margin: 0 0 var(--spacing-sm) 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-radius: 4px;
+  letter-spacing: 1px;
+  border-radius: 6px;
 }
 
 .section-header.overdue {
@@ -359,7 +357,7 @@ onMounted(async () => {
 
 .person-blue { background: var(--accent-red); }
 .person-green { background: var(--bg-tab-nav); }
-.person-purple { background: #8b5cf6; }
+.person-purple { background: var(--accent-blue); }
 .person-orange { background: var(--bg-tab-active); }
 .person-pink { background: var(--accent-success); }
 .person-unknown { background: #6b7280; }

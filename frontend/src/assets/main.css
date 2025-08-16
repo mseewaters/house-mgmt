@@ -17,7 +17,7 @@
   --bg-container: #ffffff;
   --bg-sidebar: #343c40;
   --bg-tab-nav: #495255;
-  --bg-tab-active: #d25151;
+  --bg-tab-active: #f24040;
   --bg-weather-section: #495255;
 
   /* Text Colors */  
@@ -29,9 +29,10 @@
   --text-muted: #9ba2a7;       /* Muted cool grey */
 
   /* Accent Colors */
-  --accent-red: #C40C0C;
+  --accent-red: #A40606;
   --accent-success: #95A985;
-  --accent-gradient: linear-gradient(135deg, #C40C0C, #d25151);
+  --accent-blue: #2A324B;
+  --accent-gradient: linear-gradient(135deg, #A40606, #f24040);
 
   /* Border Colors */
   --border-light: #e8eaed;
@@ -62,7 +63,7 @@
 
   /* Component Standards from Prototype */
   --touch-target: 44px;
-  --sidebar-width: 250px;
+  --sidebar-width: 270px;
   --container-width: 1280px;
   --container-height: 800px;
   --avatar-size: 40px;

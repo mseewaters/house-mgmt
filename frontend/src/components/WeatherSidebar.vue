@@ -117,18 +117,18 @@ function formatWeatherTime(timestamp) {
 }
 
 .day-date {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--text-white-muted);
   margin-bottom: 8px;
   font-weight: 500;
 }
 
 .time-display {
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 700;
   color: var(--text-white);
   text-shadow: 1px 1px 4px var(--accent-red);
-  margin-bottom: 4px;
+  margin-bottom: 16px;
   line-height: 1;
 }
 
@@ -150,12 +150,12 @@ function formatWeatherTime(timestamp) {
 }
 
 .weather-icon {
-  font-size: 50px;
-  margin-bottom: 10px;
+  font-size: 70px;
+  margin-bottom: 0px;
 }
 
 .weather-desc {
-  font-size: 20px;
+  font-size: 32px;
   color: var(--text-white);
   margin-bottom: 15px;
   text-transform: capitalize;
@@ -167,14 +167,14 @@ function formatWeatherTime(timestamp) {
 }
 
 .temp-high, .temp-low {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 600;
   margin-bottom: 6px;
   color: var(--text-white);
 }
 
 .weather-details {
-  font-size: 14px;
+  font-size: 18px;
   color: var(--text-white);
   line-height: 1.6;
 }
@@ -195,7 +195,7 @@ function formatWeatherTime(timestamp) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .forecast-name {
@@ -205,7 +205,7 @@ function formatWeatherTime(timestamp) {
 }
 
 .forecast-icon {
-  font-size: 16px;
+  font-size: 24px;
 }
 
 .forecast-temps {
