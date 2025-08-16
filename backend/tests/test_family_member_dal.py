@@ -7,13 +7,14 @@ from moto import mock_aws
 import boto3
 from datetime import datetime, timezone
 
-def test_create_family_member_person_success():
+@mock_aws
+def test_create_family_member_person_success(mock_dynamodb_table):
     """Test creating a person family member successfully"""
     from dal.family_member_dal import FamilyMemberDAL
     from models.family_member import FamilyMemberCreate
     
     # Arrange
-    dal = FamilyMemberDAL()
+    dal = FamilyMemberDAL(table_name=mock_dynamodb_table)
     member_data = FamilyMemberCreate(
         name="Sarah",
         member_type="Person",
@@ -30,13 +31,14 @@ def test_create_family_member_person_success():
     assert result.status == "Active"
 
 
-def test_create_family_member_pet_success():
+@mock_aws
+def test_create_family_member_pet_success(mock_dynamodb_table):
     """Test creating a pet family member successfully"""
     from dal.family_member_dal import FamilyMemberDAL
     from models.family_member import FamilyMemberCreate
     
     # Arrange
-    dal = FamilyMemberDAL()
+    dal = FamilyMemberDAL(table_name=mock_dynamodb_table)
     member_data = FamilyMemberCreate(
         name="Fluffy",
         member_type="Pet",
@@ -96,13 +98,14 @@ def test_create_and_retrieve_family_member():
     assert retrieved_member.status == "Active"
 
 
-def test_family_member_has_utc_timestamps():
+@mock_aws
+def test_family_member_has_utc_timestamps(mock_dynamodb_table):
     """Test that family members have proper UTC timestamps (Best-practices.md requirement)"""
     from dal.family_member_dal import FamilyMemberDAL
     from models.family_member import FamilyMemberCreate
     
     # Arrange
-    dal = FamilyMemberDAL()
+    dal = FamilyMemberDAL(table_name=mock_dynamodb_table)
     member_data = FamilyMemberCreate(
         name="Sarah",
         member_type="Person",
@@ -124,12 +127,13 @@ def test_family_member_has_utc_timestamps():
 
 # NON-HAPPY PATH TESTS
 
-def test_get_family_member_not_found():
+@mock_aws
+def test_get_family_member_not_found(mock_dynamodb_table):
     """Test retrieving non-existent family member returns None"""
     from dal.family_member_dal import FamilyMemberDAL
     
     # Arrange
-    dal = FamilyMemberDAL()
+    dal = FamilyMemberDAL(table_name=mock_dynamodb_table)
     fake_id = "non-existent-id"
     
     # Act

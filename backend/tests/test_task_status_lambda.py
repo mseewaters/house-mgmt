@@ -35,6 +35,7 @@ def test_task_status_lambda_updates_pending_to_overdue():
     now = datetime.now(timezone.utc)
     two_hours_ago = now - timedelta(hours=2)
     tomorrow = now + timedelta(days=1)
+    future_time = now + timedelta(hours=6)  # 6 hours in the future
     
     from dal.daily_task_dal import DailyTaskDAL
     from models.daily_task import DailyTaskCreate
@@ -59,8 +60,11 @@ def test_task_status_lambda_updates_pending_to_overdue():
     # Update overdue_at to past time (simulate task that should be overdue)
     table.update_item(
         Key={'PK': f'DAILY#{created_task.date}', 'SK': f'TASK#{created_task.task_id}'},
-        UpdateExpression='SET overdue_at = :overdue_at',
-        ExpressionAttributeValues={':overdue_at': two_hours_ago.isoformat()}
+        UpdateExpression='SET overdue_at = :overdue_at, clear_at = :clear_at',
+        ExpressionAttributeValues={
+            ':overdue_at': two_hours_ago.isoformat(),
+            ':clear_at': (now + timedelta(days=1)).isoformat()  # Clear tomorrow, not in 2024
+        }
     )
     
     # Also create a task that should NOT become overdue (overdue_at is in future)
@@ -75,6 +79,13 @@ def test_task_status_lambda_updates_pending_to_overdue():
         overdue_when="6 hours"
     )
     future_task = daily_dal.create_daily_task(future_task_data)
+
+    # ALSO update the future task to have a proper future overdue_at
+    table.update_item(
+        Key={'PK': f'DAILY#{future_task.date}', 'SK': f'TASK#{future_task.task_id}'},
+        UpdateExpression='SET overdue_at = :overdue_at',
+        ExpressionAttributeValues={':overdue_at': future_time.isoformat()}
+    )
     
     # Mock Lambda event and context
     event = {"source": ["aws.events"], "detail-type": ["Scheduled Event"]}

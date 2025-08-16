@@ -3,16 +3,18 @@ TDD: Recurring Task DAL Tests - Updated for Pydantic Models
 Following TDD: Red → Green → Refactor
 """
 import pytest
+from moto import mock_aws
 from datetime import datetime, timezone, date
 from pydantic import ValidationError
 
-def test_create_recurring_task_success():
+@mock_aws
+def test_create_recurring_task_success(mock_dynamodb_table):
     """Test creating a recurring task successfully"""
     from dal.recurring_task_dal import RecurringTaskDAL
     from models.recurring_task import RecurringTaskCreate
     
     # Arrange - Use real Pydantic model
-    dal = RecurringTaskDAL()
+    dal = RecurringTaskDAL(table_name=mock_dynamodb_table)
     task_data = RecurringTaskCreate(
         task_name="Morning pills",
         assigned_to="member-uuid-123",

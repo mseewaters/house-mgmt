@@ -11,13 +11,14 @@ from datetime import datetime, timezone, date
 from pydantic import ValidationError
 
 
-def test_create_daily_task_success():
+@mock_aws
+def test_create_daily_task_success(mock_dynamodb_table):
     """Test creating a daily task successfully - following recurring task pattern"""
     from dal.daily_task_dal import DailyTaskDAL
     from models.daily_task import DailyTaskCreate
     
     # Arrange - Use real Pydantic model following existing pattern
-    dal = DailyTaskDAL()
+    dal = DailyTaskDAL(table_name=mock_dynamodb_table)
     task_data = DailyTaskCreate(
         task_name="Morning pills",
         assigned_to="member-uuid-123",
@@ -50,13 +51,14 @@ def test_create_daily_task_success():
     assert result.updated_at.tzinfo == timezone.utc
 
 
-def test_get_daily_task_by_id_success():
+@mock_aws
+def test_get_daily_task_by_id_success(mock_dynamodb_table):
     """Test retrieving daily task by ID - following existing pattern"""
     from dal.daily_task_dal import DailyTaskDAL
     from models.daily_task import DailyTaskCreate
     
     # Arrange - Create a task first
-    dal = DailyTaskDAL()
+    dal = DailyTaskDAL(table_name=mock_dynamodb_table)
     task_data = DailyTaskCreate(
         task_name="Evening pills",
         assigned_to="member-uuid-123",
@@ -79,12 +81,13 @@ def test_get_daily_task_by_id_success():
     assert retrieved_task.due_time == "Evening"
 
 
-def test_get_daily_task_by_id_not_found():
+@mock_aws
+def test_get_daily_task_by_id_not_found(mock_dynamodb_table):
     """Test retrieving non-existent daily task returns None - following existing pattern"""
     from dal.daily_task_dal import DailyTaskDAL
     
     # Arrange
-    dal = DailyTaskDAL()
+    dal = DailyTaskDAL(table_name=mock_dynamodb_table)
     
     # Act
     result = dal.get_daily_task_by_id("non-existent-id")
