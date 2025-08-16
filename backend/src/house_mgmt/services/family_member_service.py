@@ -160,3 +160,126 @@ class FamilyMemberService:
                 error_type=type(e).__name__
             )
             raise RuntimeError("Failed to retrieve family members") from e
+        
+    def update_family_member(self, member_id: str, member_data: FamilyMemberCreate) -> FamilyMemberModel:
+        """
+        Update an existing family member
+        
+        Args:
+            member_id: UUID of the family member to update
+            member_data: Validated family member update data
+            
+        Returns:
+            Updated family member with new timestamps
+            
+        Raises:
+            ValueError: If family member not found
+            Exception: For database errors
+        """
+        try:
+            log_info(
+                "family_member_service_update_started",
+                member_id=member_id,
+                name=member_data.name,
+                member_type=member_data.member_type
+            )
+            
+            # Check if member exists first
+            existing_member = self._dal.get_family_member_by_id(member_id)
+            if existing_member is None:
+                log_error("family_member_service_update_not_found", member_id=member_id)
+                raise ValueError(f"Family member not found: {member_id}")
+            
+            # Update via DAL
+            updated_member = self._dal.update_family_member(member_id, member_data)
+            
+            log_info(
+                "family_member_service_update_success",
+                member_id=updated_member.member_id,
+                name=updated_member.name,
+                updated_at=updated_member.updated_at.isoformat()
+            )
+            
+            return updated_member
+            
+        except ValueError:
+            # Re-raise validation errors (member not found)
+            raise
+        except Exception as e:
+            log_error(
+                "family_member_service_update_error",
+                member_id=member_id,
+                error=str(e),
+                error_type=type(e).__name__
+            )
+            raise
+
+    def delete_family_member(self, member_id: str) -> None:
+        """
+        Delete a family member after checking for associated recurring tasks
+        
+        Args:
+            member_id: UUID of the family member to delete
+            
+        Raises:
+            ValueError: If family member not found or has associated tasks
+            Exception: For database errors
+        """
+        try:
+            log_info(
+                "family_member_service_delete_started",
+                member_id=member_id
+            )
+            
+            # Check if member exists first
+            existing_member = self._dal.get_family_member_by_id(member_id)
+            if existing_member is None:
+                log_error("family_member_service_delete_not_found", member_id=member_id)
+                raise ValueError(f"Family member not found: {member_id}")
+            
+            # Check for associated recurring tasks
+            from dal.recurring_task_dal import RecurringTaskDAL
+            recurring_task_dal = RecurringTaskDAL(table_name=self._dal.table_name)
+            
+            log_info("checking_for_associated_tasks", member_id=member_id)  # ADD THIS LINE
+
+            try:
+                # Try to get tasks for this member
+                member_tasks = recurring_task_dal.get_recurring_tasks_by_member(member_id)
+                log_info("found_member_tasks", member_id=member_id, task_count=len(member_tasks))  # ADD THIS LINE
+
+                if member_tasks:
+                    log_error(
+                        "family_member_service_delete_has_tasks",
+                        member_id=member_id,
+                        task_count=len(member_tasks)
+                    )
+                    raise ValueError(f"Cannot delete family member with {len(member_tasks)} associated tasks")
+            except ValueError as e:
+                if "not found" not in str(e).lower():
+                    # Re-raise if it's not a "no tasks found" error
+                    raise
+                # If no tasks found, that's fine - continue with deletion
+            
+            # Delete via DAL
+            self._dal.delete_family_member(member_id)
+            
+            log_info(
+                "family_member_service_delete_success",
+                member_id=member_id,
+                name=existing_member.name
+            )
+            
+        except ValueError:
+            # Re-raise validation errors
+            raise
+        except Exception as e:
+            log_error(
+                "family_member_service_delete_error",
+                member_id=member_id,
+                error=str(e),
+                error_type=type(e).__name__
+            )
+            raise
+
+        

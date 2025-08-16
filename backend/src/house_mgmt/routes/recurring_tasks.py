@@ -194,3 +194,141 @@ async def get_all_recurring_tasks(request: Request) -> List[RecurringTaskModel]:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving recurring tasks"
         )
+
+@router.put("/recurring-tasks/{task_id}")
+async def update_recurring_task(
+    request: Request,
+    task_id: str,
+    task_data: RecurringTaskCreate
+) -> RecurringTaskModel:
+    """
+    Update an existing recurring task
+    
+    Args:
+        request: FastAPI request object (for correlation ID)
+        task_id: UUID of the recurring task to update
+        task_data: Validated recurring task update data
+        
+    Returns:
+        Updated recurring task with new timestamps
+        
+    Raises:
+        HTTPException: 404 if task not found, 422 for validation errors, 500 for internal errors
+    """
+    correlation_id = getattr(request.state, 'correlation_id', None)
+    
+    try:
+        log_info(
+            "update_recurring_task_requested",
+            task_id=task_id,
+            task_name=task_data.task_name,
+            assigned_to=task_data.assigned_to,
+            frequency=task_data.frequency,
+            correlation_id=correlation_id
+        )
+        
+        # Update via service layer
+        result = recurring_task_service.update_recurring_task(task_id, task_data)
+        
+        log_info(
+            "update_recurring_task_success",
+            task_id=result.task_id,
+            task_name=result.task_name,
+            correlation_id=correlation_id
+        )
+        
+        return result
+        
+    except ValueError as e:
+        # Business logic validation errors (task not found, etc.)
+        log_error(
+            "update_recurring_task_validation_error",
+            task_id=task_id,
+            error=str(e),
+            correlation_id=correlation_id
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Recurring task not found"
+        )
+        
+    except Exception as e:
+        # Unexpected errors
+        log_error(
+            "update_recurring_task_internal_error",
+            task_id=task_id,
+            error=str(e),
+            error_type=type(e).__name__,
+            correlation_id=correlation_id
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while updating the recurring task"
+        )
+
+
+@router.delete("/recurring-tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_recurring_task(
+    request: Request,
+    task_id: str
+):
+    """
+    Delete a recurring task
+    
+    Args:
+        request: FastAPI request object (for correlation ID)
+        task_id: UUID of the recurring task to delete
+        
+    Returns:
+        204 No Content on successful deletion
+        
+    Raises:
+        HTTPException: 404 if task not found, 500 for internal errors
+    """
+    correlation_id = getattr(request.state, 'correlation_id', None)
+    
+    try:
+        log_info(
+            "delete_recurring_task_requested",
+            task_id=task_id,
+            correlation_id=correlation_id
+        )
+        
+        # Delete via service layer
+        recurring_task_service.delete_recurring_task(task_id)
+        
+        log_info(
+            "delete_recurring_task_success",
+            task_id=task_id,
+            correlation_id=correlation_id
+        )
+        
+        # 204 No Content - successful deletion
+        return
+        
+    except ValueError as e:
+        # Business logic errors (not found, etc.)
+        log_error(
+            "delete_recurring_task_not_found",
+            task_id=task_id,
+            error=str(e),
+            correlation_id=correlation_id
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Recurring task not found"
+        )
+        
+    except Exception as e:
+        # Unexpected errors
+        log_error(
+            "delete_recurring_task_internal_error",
+            task_id=task_id,
+            error=str(e),
+            error_type=type(e).__name__,
+            correlation_id=correlation_id
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while deleting the recurring task"
+        )

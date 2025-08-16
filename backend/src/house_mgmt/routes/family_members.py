@@ -197,3 +197,164 @@ async def get_all_family_members(request: Request) -> List[FamilyMemberModel]:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving family members"
         )
+    
+@router.put("/family-members/{member_id}")
+async def update_family_member(
+    request: Request,
+    member_id: str,
+    member_data: FamilyMemberCreate
+) -> FamilyMemberModel:
+    """
+    Update an existing family member
+    
+    Args:
+        request: FastAPI request object (for correlation ID)
+        member_id: UUID of the family member to update
+        member_data: Validated family member update data
+        
+    Returns:
+        Updated family member with new timestamps
+        
+    Raises:
+        HTTPException: 404 if member not found, 422 for validation errors, 500 for internal errors
+    """
+    correlation_id = getattr(request.state, 'correlation_id', None)
+    
+    try:
+        log_info(
+            "update_family_member_requested",
+            member_id=member_id,
+            name=member_data.name,
+            member_type=member_data.member_type,
+            correlation_id=correlation_id
+        )
+        
+        # Update via service layer
+        result = family_service.update_family_member(member_id, member_data)
+        
+        log_info(
+            "update_family_member_success",
+            member_id=result.member_id,
+            name=result.name,
+            correlation_id=correlation_id
+        )
+        
+        return result
+        
+    except ValueError as e:
+        # Business logic validation errors (member not found, etc.)
+        log_error(
+            "update_family_member_validation_error",
+            member_id=member_id,
+            error=str(e),
+            correlation_id=correlation_id
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Family member not found"
+        )
+        
+    except Exception as e:
+        # Unexpected errors
+        log_error(
+            "update_family_member_internal_error",
+            member_id=member_id,
+            error=str(e),
+            error_type=type(e).__name__,
+            correlation_id=correlation_id
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while updating the family member"
+        )
+
+
+@router.delete("/family-members/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_family_member(
+    request: Request,
+    member_id: str
+):
+    """
+    Delete a family member
+    
+    Args:
+        request: FastAPI request object (for correlation ID)
+        member_id: UUID of the family member to delete
+        
+    Returns:
+        204 No Content on successful deletion
+        
+    Raises:
+        HTTPException: 404 if member not found, 409 if member has associated tasks, 500 for internal errors
+    """
+    correlation_id = getattr(request.state, 'correlation_id', None)
+    
+    try:
+        log_info(
+            "delete_family_member_requested",
+            member_id=member_id,
+            correlation_id=correlation_id
+        )
+        
+        # Delete via service layer (includes business logic checks)
+        family_service.delete_family_member(member_id)
+        
+        log_info(
+            "delete_family_member_success",
+            member_id=member_id,
+            correlation_id=correlation_id
+        )
+        
+        # 204 No Content - successful deletion
+        return
+        
+    except ValueError as e:
+        # Business logic errors (not found, has associated tasks, etc.)
+        error_msg = str(e).lower()
+        if "not found" in error_msg:
+            log_error(
+                "delete_family_member_not_found",
+                member_id=member_id,
+                error=str(e),
+                correlation_id=correlation_id
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        elif "associated tasks" in error_msg:
+            log_error(
+                "delete_family_member_has_tasks",
+                member_id=member_id,
+                error=str(e),
+                correlation_id=correlation_id
+            )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(e)
+            )
+        else:
+            log_error(
+                "delete_family_member_validation_error",
+                member_id=member_id,
+                error=str(e),
+                correlation_id=correlation_id
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
+        
+    except Exception as e:
+        # Unexpected errors
+        log_error(
+            "delete_family_member_internal_error",
+            member_id=member_id,
+            error=str(e),
+            error_type=type(e).__name__,
+            correlation_id=correlation_id
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while deleting the family member"
+        )

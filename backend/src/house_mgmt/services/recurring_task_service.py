@@ -161,3 +161,110 @@ class RecurringTaskService:
                 error_type=type(e).__name__
             )
             raise RuntimeError("Failed to retrieve recurring tasks") from e
+        
+    def update_recurring_task(self, task_id: str, task_data: RecurringTaskCreate) -> RecurringTaskModel:
+        """
+        Update an existing recurring task
+        
+        Args:
+            task_id: UUID of the recurring task to update
+            task_data: Validated recurring task update data
+            
+        Returns:
+            Updated recurring task with new timestamps
+            
+        Raises:
+            ValueError: If recurring task not found
+            Exception: For database errors
+        """
+        try:
+            log_info(
+                "recurring_task_service_update_started",
+                task_id=task_id,
+                task_name=task_data.task_name,
+                assigned_to=task_data.assigned_to,
+                frequency=task_data.frequency
+            )
+            
+            # Check if task exists first
+            try:
+                existing_task = self._dal.get_recurring_task_by_id(task_id)
+            except ValueError:
+                log_error(
+                    "recurring_task_service_update_not_found",
+                    task_id=task_id
+                )
+                raise ValueError(f"Recurring task not found: {task_id}")
+            
+            # Update via DAL
+            updated_task = self._dal.update_recurring_task(task_id, task_data)
+            
+            log_info(
+                "recurring_task_service_update_success",
+                task_id=updated_task.task_id,
+                task_name=updated_task.task_name,
+                updated_at=updated_task.updated_at.isoformat()
+            )
+            
+            return updated_task
+            
+        except ValueError:
+            # Re-raise validation errors (task not found)
+            raise
+        except Exception as e:
+            log_error(
+                "recurring_task_service_update_error",
+                task_id=task_id,
+                error=str(e),
+                error_type=type(e).__name__
+            )
+            raise
+
+
+    def delete_recurring_task(self, task_id: str) -> None:
+        """
+        Delete a recurring task
+        
+        Args:
+            task_id: UUID of the recurring task to delete
+            
+        Raises:
+            ValueError: If recurring task not found
+            Exception: For database errors
+        """
+        try:
+            log_info(
+                "recurring_task_service_delete_started",
+                task_id=task_id
+            )
+            
+            # Check if task exists first
+            existing_task = self._dal.get_recurring_task_by_id(task_id)
+            if existing_task is None:
+                log_error("recurring_task_service_delete_not_found", task_id=task_id)
+                raise ValueError(f"Recurring task not found: {task_id}")
+            
+            # Delete via DAL
+            self._dal.delete_recurring_task(task_id)
+            
+            log_info(
+                "recurring_task_service_delete_success",
+                task_id=task_id,
+                task_name=existing_task.task_name
+            )
+            
+            # Note: For MVP, we're not cleaning up associated daily task instances
+            # This preserves audit trail and completion history
+            # Future enhancement could add cascade deletion or archiving
+            
+        except ValueError:
+            # Re-raise validation errors
+            raise
+        except Exception as e:
+            log_error(
+                "recurring_task_service_delete_error",
+                task_id=task_id,
+                error=str(e),
+                error_type=type(e).__name__
+            )
+            raise

@@ -112,7 +112,7 @@ Resources:
         DailySchedule:
           Type: Schedule
           Properties:
-            Schedule: "cron(0 5 * * ? *)"  # 5 AM UTC = Midnight EST
+            Schedule: "cron(5 0 ? * * *)"  # 5 AM UTC = Midnight EST
             Description: "Generate daily tasks at local midnight"
       Policies:
         - DynamoDBCrudPolicy:
@@ -136,6 +136,23 @@ Resources:
             BucketName: !Ref WeatherDataBucket
         - SSMParameterReadPolicy:
             ParameterName: "house-mgmt/openweather-api-key"
+
+  # Task status update Lambda  
+  TaskStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "house-mgmt-task-status-${Environment}"
+      CodeUri: src/house_mgmt/
+      Handler: lambdas.task_status_handler.lambda_handler
+      Events:
+        HourlySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 * * * ? *)"  # Every hour at minute 0
+            Description: "Update task statuses hourly (pending -> overdue -> cleared)"
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HouseMgmtTable
 
 Outputs:
   ApiUrl:
