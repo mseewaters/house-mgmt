@@ -1,109 +1,95 @@
 <template>
-  <div class="activities-layout">
-    <!-- CENTER ZONE: Tasks (flex-grow to fill available space) -->
-    <div class="center-zone">
-      <!-- Overdue Section -->
-      <div v-if="store.overdueTasks.length > 0" class="task-section overdue">
-        <h3 class="section-header overdue">OVERDUE</h3>
-        <div class="task-list">
-          <div 
-            v-for="task in store.overdueTasks" 
-            :key="task.task_id"
-            class="task-item overdue"
-            @click="toggleTaskCompletion(task)"
-          >
-            <div class="task-checkbox overdue" :class="{ completed: task.status === 'Completed' }"></div>
-            <div class="task-name">{{ task.task_name }}</div>
-            <div class="person-initial" :class="getPersonClass(task.assigned_to)">
-              {{ task.member_avatar }}
+  <div class="activities-person-layout">
+    <!-- Left Column: People (2 cards, 50% height each) -->
+    <div class="people-column">
+      <div 
+        v-for="person in store.tasksByPersonGrouped.people" 
+        :key="person.member_id"
+        class="person-card"
+      >
+        <div class="gradient-bar"></div>
+        <div class="card-header">
+          <div class="member-info">
+            <div class="member-avatar" :class="getPersonClass(person.member_id)">
+              {{ person.avatar }}
             </div>
-            <div class="task-person-name">{{ task.member_name }}</div>
-            <div class="task-meta">{{ task.overdue_message }}</div>
+            <div class="member-name">{{ person.name }}</div>
           </div>
+          <div class="progress-count">[{{ person.progress.completed }}/{{ person.progress.total }}]</div>
         </div>
-      </div>
-
-      <!-- Current Period Section -->
-      <div v-if="store.currentPeriodTasks.length > 0" class="task-section current">
-        <h3 class="section-header">{{ store.currentPeriodName }}</h3>
+        
         <div class="task-list">
           <div 
-            v-for="task in store.currentPeriodTasks" 
+            v-for="task in person.tasks" 
             :key="task.task_id"
             class="task-item"
+            :class="{ 
+              'overdue': task.is_overdue && !task.is_completed, 
+              'completed': task.is_completed 
+            }"
             @click="toggleTaskCompletion(task)"
           >
-            <div class="task-checkbox" :class="{ completed: task.status === 'Completed' }"></div>
-            <div class="task-name">{{ task.task_name }}</div>
-            <div class="person-initial" :class="getPersonClass(task.assigned_to)">
-              {{ task.member_avatar }}
+            <div class="task-radio" :class="{ checked: task.is_completed }"></div>
+            <div class="task-content">
+              <div class="task-name">{{ task.task_name }}</div>
             </div>
-            <div class="task-person-name">{{ task.member_name }}</div>
-            <div class="task-meta">{{ task.display_time }}</div>
+            <div class="task-status">
+              <span v-if="task.is_completed">Completed</span>
+              <span v-else-if="task.is_overdue">Overdue</span>
+              <span v-else>{{ task.display_time }}</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Empty State -->
-      <div v-if="store.overdueTasks.length === 0 && store.currentPeriodTasks.length === 0" class="empty-state">
-        <div class="empty-state-icon">✨</div>
-        <h3>All caught up!</h3>
-        <p>No tasks due right now.</p>
+        
+        <div v-if="person.tasks.length === 0" class="empty-card">
+          No tasks today
+        </div>
       </div>
     </div>
 
-    <!-- RIGHT ZONE: Completed + Coming Up -->
-    <div class="right-zone">
-      <!-- Completed Today Section -->
-      <div class="completed-section">
+    <!-- Right Column: Pets (3 cards, 33% height each) -->
+    <div class="pets-column">
+      <div 
+        v-for="pet in store.tasksByPersonGrouped.pets" 
+        :key="pet.member_id"
+        class="pet-card"
+      >
         <div class="gradient-bar"></div>
-        <h4 class="right-section-header">Completed Today</h4>
-        <div class="completed-list">
+        <div class="card-header">
+          <div class="member-info">
+            <div class="member-avatar" :class="getPersonClass(pet.member_id)">
+              {{ pet.avatar }}
+            </div>
+            <div class="member-name">{{ pet.name }}</div>
+          </div>
+          <div class="progress-count">[{{ pet.progress.completed }}/{{ pet.progress.total }}]</div>
+        </div>
+        
+        <div class="task-list">
           <div 
-            v-for="task in store.completedTasks" 
+            v-for="task in pet.tasks" 
             :key="task.task_id"
-            class="completed-item"
+            class="task-item"
+            :class="{ 
+              'overdue': task.is_overdue && !task.is_completed, 
+              'completed': task.is_completed 
+            }"
+            @click="toggleTaskCompletion(task)"
           >
-            <div class="person-initial" :class="getPersonClass(task.assigned_to)">
-              {{ task.member_avatar }}
+            <div class="task-radio" :class="{ checked: task.is_completed }"></div>
+            <div class="task-content">
+              <div class="task-name">{{ task.task_name }}</div>
             </div>
-            <div class="completed-content">
-              <div class="completed-task">{{ task.task_name }}</div>
-              <div class="completed-time">{{ task.completed_display_time }}</div>
+            <div class="task-status">
+              <span v-if="task.is_completed">Completed</span>
+              <span v-else-if="task.is_overdue">Overdue</span>
+              <span v-else>{{ task.display_time }}</span>
             </div>
-            <button 
-              class="undo-btn" 
-              @click="undoTaskCompletion(task)"
-              title="Undo completion"
-            >
-              ↶
-            </button>
           </div>
         </div>
-        <div v-if="store.completedTasks.length === 0" class="empty-message">
-          No tasks completed yet today
-        </div>
-      </div>
-
-      <!-- Coming Up Section -->
-      <div class="coming-up-section">
-        <div class="gradient-bar"></div>
-        <h4 class="right-section-header">Coming Up - {{ store.nextPeriodName }}</h4>
-        <div class="coming-up-list">
-          <div 
-            v-for="task in store.upcomingTasks" 
-            :key="task.task_id"
-            class="coming-up-item"
-          >
-            <div class="person-initial" :class="getPersonClass(task.assigned_to)">
-              {{ task.member_avatar }}
-            </div>
-            <div class="coming-up-task">{{ task.task_name }}</div>
-            <div class="coming-up-time">{{ task.display_time }}</div>
-          </div>
-        </div>
-        <div v-if="store.upcomingTasks.length === 0" class="empty-message">
-          No {{ store.nextPeriodName.toLowerCase() }} tasks scheduled
+        
+        <div v-if="pet.tasks.length === 0" class="empty-card">
+          No tasks today
         </div>
       </div>
     </div>
@@ -114,23 +100,16 @@
 import { onMounted } from 'vue'
 import { useHouseStore } from '../stores/house.js'
 
-// Store
 const store = useHouseStore()
 
-// Helper functions
+// Helper: Get person color class
 function getPersonClass(memberId) {
   const member = store.familyMembers.find(m => m.member_id === memberId)
   if (!member) return 'person-unknown'
   
-  // Generate unique color class based on member's position in familyMembers array
   const colors = ['person-blue', 'person-green', 'person-purple', 'person-orange', 'person-pink']
-  
-  // Find the index of this member in the familyMembers array
-  const memberIndex = store.familyMembers.findIndex(m => m.member_id === memberId)
-  
-  // Use the member's position to assign a unique color (cycling through if more members than colors)
-  const colorIndex = memberIndex % colors.length
-  return colors[colorIndex]
+  const index = store.familyMembers.indexOf(member)
+  return colors[index % colors.length]
 }
 
 // Task actions
@@ -146,25 +125,12 @@ async function toggleTaskCompletion(task) {
     console.log('✅ Task completed successfully')
   } catch (error) {
     console.error('❌ Failed to complete task:', error)
-    // TODO: Show user-friendly error message
-  }
-}
-
-async function undoTaskCompletion(completedTask) {
-  try {
-    console.log('🔄 Undoing task completion:', completedTask.task_name)
-    await store.undoTaskCompletion(completedTask.task_id)
-    console.log('✅ Task completion undone successfully')
-  } catch (error) {
-    console.error('❌ Failed to undo task completion:', error)
-    // TODO: Show user-friendly error message
   }
 }
 
 // Load data on mount
 onMounted(async () => {
-  console.log('📱 ActivitiesView mounted')
-  // Data is already loaded by HomePage, but refresh if needed
+  console.log('📱 ActivitiesView (Person-Oriented) mounted')
   if (store.dailyTasks.length === 0) {
     console.log('🔄 No tasks found, refreshing...')
     await store.loadDailyTasks()
@@ -174,177 +140,84 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* THREE ZONE LAYOUT */
-.activities-layout {
-  display: flex;
+/* TWO COLUMN LAYOUT */
+.activities-person-layout {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  gap: 16px;
   height: 100%;
-  gap: var(--spacing-lg);
-  min-width: 0; /* Critical for flex shrinking */
-}
-
-/* CENTER ZONE: Tasks - Dynamic flex layout */
-.center-zone {
-  flex: 1;
-  padding: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  min-width: var(--center-zone-min);
-  max-width: calc(100vw - var(--sidebar-width) - var(--right-zone-width) - 60px);
+  padding: 8px;
   overflow: hidden;
 }
 
-/* RIGHT ZONE: Completed + Coming Up */
-.right-zone {
-  width: 400px;
-  padding: var(--spacing-lg);
-  overflow-y: auto;
+/* PEOPLE COLUMN (Left) */
+.people-column {
+  display: grid;
+  grid-template-rows: 50% 50%;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.person-card {
+  background: white;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
-  border-left: 1px solid var(--border-light);
-  flex-shrink: 0; /* Prevent shrinking below min width */
+  overflow: hidden;
 }
 
-/* TASK SECTIONS - Dynamic heights */
-.task-section {
+/* PETS COLUMN (Right) */
+.pets-column {
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  margin-bottom: var(--spacing-lg);
-  overflow: hidden; /* Prevent section overflow */
+  gap: 16px;
+  overflow: hidden;
 }
 
-.task-section.overdue {
-  border-left: 4px solid var(--accent-red);
-  padding-left: var(--spacing-md);
-  flex: 0 1 auto; /* Don't grow much, but can shrink */
-}
-
-.task-section.current {
-  border-left: 4px solid var(--border-light);
-  padding-left: var(--spacing-md);
-  flex: 1; /* Take remaining space */
-}
-
-.task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  overflow-y: auto;
-  flex: 1; /* Fill available section space */
-  max-height: calc(50vh - 100px); /* Prevent excessive growth */
-}
-
-.section-header {
-  background: linear-gradient(90deg, var(--accent-red), var(--accent-success), var(--text-muted));
-  color: var(--text-white);
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-weight: 700;
-  font-size: var(--font-size-base);
-  margin: 0 0 var(--spacing-sm) 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-radius: 6px;
-}
-
-.section-header.overdue {
-  background: var(--accent-red);
-}
-
-.task-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-container);
-  border-radius: 4px;
-  min-height: var(--touch-target);
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.task-item:hover {
-  background: #f8f9fa;
-}
-
-.task-item:nth-child(even) {
-  background: #fcfcfc;
-}
-
-.task-item:nth-child(even):hover {
-  background: #f0f1f2;
-}
-
-.task-item.overdue {
-  background: var(--task-bg-overdue, #fef2f2);
-}
-
-.task-item.overdue:hover {
-  background: #fde8e8;
-}
-
-.task-checkbox {
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--border-light);
-  border-radius: 50%;
-  cursor: pointer;
-  position: relative;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.task-checkbox.completed {
-  background: var(--accent-green, #10b981);
-  border-color: var(--accent-green, #10b981);
-}
-
-.task-checkbox.completed::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.task-checkbox.overdue {
-  border-color: var(--accent-red, #ef4444);
-}
-
-.task-name {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: var(--font-size-base);
+.pet-card {
   flex: 1;
-  min-width: 0;
+  background: white;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
 }
 
-.task-person-name {
-  font-size: 14px;
-  color: #6b7280;
-  margin-left: 8px;
-  white-space: nowrap;
+/* CARD HEADER */
+.gradient-bar {
+  height: 6px;
+  background: linear-gradient(90deg, #B85450, #95A985, #9CAAB6);
+  border-radius: 2px 2px 0 0;
+  margin: -16px -16px 12px -16px;
 }
 
-.task-person {
+.card-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  justify-content: space-between;
+  margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
-.person-initial {
-  width: 24px;
-  height: 24px;
+.member-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.member-avatar {
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 22px;
   font-weight: bold;
   color: white;
   flex-shrink: 0;
@@ -357,182 +230,118 @@ onMounted(async () => {
 .person-pink { background: var(--accent-success); }
 .person-unknown { background: #6b7280; }
 
-.task-meta {
-  font-size: 12px;
-  color: #9ca3af;
-  flex-shrink: 0;
-  white-space: nowrap;
-  margin-left: 12px;
+.member-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-/* EMPTY STATE */
-.empty-state {
-  text-align: center;
-  padding: var(--spacing-xl);
+.progress-count {
+  font-size: 18px;
+  font-weight: 600;
   color: var(--text-secondary);
 }
 
-.empty-state-icon {
-  font-size: 48px;
-  margin-bottom: var(--spacing-md);
-}
-
-/* RIGHT ZONE SECTIONS */
-.gradient-bar {
-  height: 4px;
-  background: linear-gradient(90deg, #B85450, #95A985, #9CAAB6);
-  border-radius: 2px;
-  margin-bottom: 8px;
-}
-
-.right-section-header {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  padding: 0 12px 4px 12px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.completed-section, .coming-up-section {
+/* TASK LIST */
+.task-list {
   flex: 1;
-  min-height: 200px;
-  padding: 0;
-}
-
-.completed-list, .coming-up-list {
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
+  min-height: 0;
 }
 
-.completed-item, .coming-up-item {
+.task-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: transparent;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 13px;
-  transition: all 0.15s ease;
-  min-height: 32px;
-}
-
-.completed-item:last-child, .coming-up-item:last-child {
-  border-bottom: none;
-}
-
-.completed-item:hover, .coming-up-item:hover {
-  background: #f8f9fa;
-}
-
-.completed-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.coming-up-task {
-  flex: 1;
-  min-width: 0;
-  font-weight: 500;
-  color: #374151;
-  line-height: 1.2;
-}
-
-.completed-task {
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 1px;
-  line-height: 1.2;
-}
-
-.completed-time, .coming-up-time {
-  font-size: 11px;
-  color: #9ca3af;
-  font-weight: 400;
-  line-height: 1.2;
-}
-
-.undo-btn {
-  background: none;
-  border: none;
-  font-size: 14px;
+  gap: 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  color: #9ca3af;
-  padding: 2px 4px;
-  border-radius: 3px;
   transition: all 0.15s ease;
-  min-width: 24px;
+  min-height: 40px;
+}
+
+.task-item:hover {
+  background: #f9fafb;
+}
+
+/* TASK STATES */
+.task-item.overdue {
+  background: var(--task-bg-overdue);
+}
+
+.task-item.completed {
+  background: var(--task-bg-completed);
+}
+
+/* RADIO BUTTON */
+.task-radio {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.task-item.overdue .task-radio {
+  border-color: var(--accent-red);
+}
+
+.task-radio.checked {
+  background: var(--accent-success);
+  border-color: var(--accent-success);
+}
+
+.task-radio.checked::after {
+  content: '✓';
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* TASK CONTENT */
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.task-status {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.undo-btn:hover {
-  background: #f3f4f6;
-  color: #6b7280;
+.task-item.overdue .task-status {
+  color: var(--accent-red);
+  font-weight: 600;
 }
 
-.empty-message {
-  text-align: center;
-  padding: 16px 12px;
-  color: #9ca3af;
+.task-item.completed .task-status {
+  color: var(--accent-success);
+}
+
+/* EMPTY STATE */
+.empty-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
   font-style: italic;
-  font-size: 12px;
-  background: transparent;
-  border: 1px dashed #d1d5db;
-  border-radius: 4px;
-  margin: 8px 12px;
+  font-size: 16px;
 }
-
-/* Responsive adjustments */
-@media screen and (min-width: 1200px) and (max-width: 1300px) {
-  /* Likely Fire 10 HD dimensions */
-  .right-zone {
-    width: 350px; /* Smaller right zone for Fire tablets */
-  }
-  
-  .center-zone {
-    min-width: 350px; /* Reduce min width for center */
-  }
-  
-  /* Adjust sidebar for Fire tablets */
-  .sidebar {
-    width: 250px;
-  }
-}
-
-@media screen and (min-width: 1400px) {
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  
-  .right-zone {
-    width: 420px;
-  }
-}
-
-/* Tablet-Specific Touch Optimizations */
-@media (pointer: coarse) {
-  /* Larger touch targets for tablets */
-  .task-item {
-    min-height: 50px; /* Slightly larger than 44px minimum */
-    padding: var(--spacing-md);
-  }
-  
-  .nav-tab {
-    min-height: 50px;
-    padding: var(--spacing-lg) var(--spacing-xl);
-  }
-  
-  .task-checkbox {
-    width: 24px;
-    height: 24px; /* Larger checkboxes for easier tapping */
-  }
-}
-
 </style>

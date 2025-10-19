@@ -176,7 +176,7 @@ body {
 /* ===== CONTENT AREA ===== */
 .content-area {
   flex: 1;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-sm);
   overflow-y: auto;
 }
 

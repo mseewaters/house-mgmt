@@ -80,207 +80,275 @@ export const useHouseStore = defineStore('house', {
     currentMonth: ''
   }),
 
-getters: {
+  getters: {
 
-  // Family members with smart initials applied
-  familyMembersWithInitials: (state) => {
-    const smartInitials = getSmartInitials(state.familyMembers)
-    
-    return state.familyMembers.map(member => ({
-      ...member,
-      member_avatar: smartInitials.get(member.member_id) || '?'
-    }))
-  },
+    // Family members with smart initials applied
+    familyMembersWithInitials: (state) => {
+      const smartInitials = getSmartInitials(state.familyMembers)
+      
+      return state.familyMembers.map(member => ({
+        ...member,
+        member_avatar: smartInitials.get(member.member_id) || '?'
+      }))
+    },
 
-  // Enhanced focus items with smart initials
-  focusItems: (state) => {
-    const smartInitials = getSmartInitials(state.familyMembers)
-    
-    return state.dailyTasks
-      .filter(task => task.status !== 'Completed')
-      .map(task => {
-        const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
-        return {
-          ...task,
-          member_name: member?.name || 'Unknown',
-          member_avatar: smartInitials.get(task.assigned_to) || '?',
-          is_overdue: timingService.isTaskOverdue(task),
-          is_due_now: timingService.isTaskDueNow(task),
-          priority: timingService.getTaskPriority(task),
-          display_time: timingService.formatDisplayTime(task.due_time || task.due),
-          overdue_message: timingService.isTaskOverdue(task) ? timingService.getOverdueMessage(task) : null
-        }
-      })
-      .sort((a, b) => b.priority - a.priority) // Sort by priority (overdue first)
-  },
+    // Enhanced focus items with smart initials
+    focusItems: (state) => {
+      const smartInitials = getSmartInitials(state.familyMembers)
+      
+      return state.dailyTasks
+        .filter(task => task.status !== 'Completed')
+        .map(task => {
+          const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
+          return {
+            ...task,
+            member_name: member?.name || 'Unknown',
+            member_avatar: smartInitials.get(task.assigned_to) || '?',
+            is_overdue: timingService.isTaskOverdue(task),
+            is_due_now: timingService.isTaskDueNow(task),
+            priority: timingService.getTaskPriority(task),
+            display_time: timingService.formatDisplayTime(task.due_time || task.due),
+            overdue_message: timingService.isTaskOverdue(task) ? timingService.getOverdueMessage(task) : null
+          }
+        })
+        .sort((a, b) => b.priority - a.priority) // Sort by priority (overdue first)
+    },
 
-  // Separate overdue tasks
-  overdueTasks: (state) => {
-    const smartInitials = getSmartInitials(state.familyMembers)
-    
-    return state.dailyTasks
-      .filter(task => task.status !== 'Completed')
-      .map(task => {
-        const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
-        return {
-          ...task,
-          member_name: member?.name || 'Unknown',
-          member_avatar: smartInitials.get(task.assigned_to) || '?',
-          is_overdue: timingService.isTaskOverdue(task),
-          display_time: timingService.formatDisplayTime(task.due_time || task.due),
-          overdue_message: timingService.getOverdueMessage(task)
-        }
-      })
-      .filter(task => task.is_overdue)
-      .sort((a, b) => {
-        // Sort by member name, then by task name
-        if (a.member_name !== b.member_name) {
-          return a.member_name.localeCompare(b.member_name)
-        }
-        return a.task_name.localeCompare(b.task_name)
-      })
-  },
-
-  // Current period tasks (due now, not overdue)
-  currentPeriodTasks: (state) => {
-    const smartInitials = getSmartInitials(state.familyMembers)
-    
-    return state.dailyTasks
-      .filter(task => task.status !== 'Completed')
-      .map(task => {
-        const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
-        return {
-          ...task,
-          member_name: member?.name || 'Unknown',
-          member_avatar: smartInitials.get(task.assigned_to) || '?',
-          is_overdue: timingService.isTaskOverdue(task),
-          is_due_now: timingService.isTaskDueNow(task),
-          display_time: timingService.formatDisplayTime(task.due_time || task.due)
-        }
-      })
-      .filter(task => !task.is_overdue && task.is_due_now)
-      .sort((a, b) => {
-        // Sort by member name, then by task name
-        if (a.member_name !== b.member_name) {
-          return a.member_name.localeCompare(b.member_name)
-        }
-        return a.task_name.localeCompare(b.task_name)
-      })
-  },
-
-  // Upcoming tasks (not overdue, not due now, with smart initials)
-  upcomingTasks: (state) => {
-    const smartInitials = getSmartInitials(state.familyMembers)
-    
-    return state.dailyTasks
-      .filter(task => task.status !== 'Completed')
-      .map(task => {
-        const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
-        return {
-          ...task,
-          member_name: member?.name || 'Unknown',
-          member_avatar: smartInitials.get(task.assigned_to) || '?',
-          is_overdue: timingService.isTaskOverdue(task),
-          is_due_now: timingService.isTaskDueNow(task),
-          is_for_next_period: timingService.isTaskForNextPeriod(task),
-          display_time: timingService.formatDisplayTime(task.due_time || task.due)
-        }
-      })
-      .filter(task => !task.is_overdue && !task.is_due_now && task.is_for_next_period)
-      .slice(0, 10) // Show max 10 upcoming
-      .sort((a, b) => {
+    // Separate overdue tasks
+    overdueTasks: (state) => {
+      const smartInitials = getSmartInitials(state.familyMembers)
+      
+      return state.dailyTasks
+        .filter(task => task.status !== 'Completed')
+        .map(task => {
+          const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
+          return {
+            ...task,
+            member_name: member?.name || 'Unknown',
+            member_avatar: smartInitials.get(task.assigned_to) || '?',
+            is_overdue: timingService.isTaskOverdue(task),
+            display_time: timingService.formatDisplayTime(task.due_time || task.due),
+            overdue_message: timingService.getOverdueMessage(task)
+          }
+        })
+        .filter(task => task.is_overdue)
+        .sort((a, b) => {
           // Sort by member name, then by task name
           if (a.member_name !== b.member_name) {
             return a.member_name.localeCompare(b.member_name)
           }
           return a.task_name.localeCompare(b.task_name)
-        }) 
-  },
+        })
+    },
 
-  // Completed tasks for today
-  completedTasks: (state) => {
-    const smartInitials = getSmartInitials(state.familyMembers)
+    // Current period tasks (due now, not overdue)
+    currentPeriodTasks: (state) => {
+      const smartInitials = getSmartInitials(state.familyMembers)
+      
+      return state.dailyTasks
+        .filter(task => task.status !== 'Completed')
+        .map(task => {
+          const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
+          return {
+            ...task,
+            member_name: member?.name || 'Unknown',
+            member_avatar: smartInitials.get(task.assigned_to) || '?',
+            is_overdue: timingService.isTaskOverdue(task),
+            is_due_now: timingService.isTaskDueNow(task),
+            display_time: timingService.formatDisplayTime(task.due_time || task.due)
+          }
+        })
+        .filter(task => !task.is_overdue && task.is_due_now)
+        .sort((a, b) => {
+          // Sort by member name, then by task name
+          if (a.member_name !== b.member_name) {
+            return a.member_name.localeCompare(b.member_name)
+          }
+          return a.task_name.localeCompare(b.task_name)
+        })
+    },
+
+    // Upcoming tasks (not overdue, not due now, with smart initials)
+    upcomingTasks: (state) => {
+      const smartInitials = getSmartInitials(state.familyMembers)
+      
+      return state.dailyTasks
+        .filter(task => task.status !== 'Completed')
+        .map(task => {
+          const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
+          return {
+            ...task,
+            member_name: member?.name || 'Unknown',
+            member_avatar: smartInitials.get(task.assigned_to) || '?',
+            is_overdue: timingService.isTaskOverdue(task),
+            is_due_now: timingService.isTaskDueNow(task),
+            is_for_next_period: timingService.isTaskForNextPeriod(task),
+            display_time: timingService.formatDisplayTime(task.due_time || task.due)
+          }
+        })
+        .filter(task => !task.is_overdue && !task.is_due_now && task.is_for_next_period)
+        .slice(0, 10) // Show max 10 upcoming
+        .sort((a, b) => {
+            // Sort by member name, then by task name
+            if (a.member_name !== b.member_name) {
+              return a.member_name.localeCompare(b.member_name)
+            }
+            return a.task_name.localeCompare(b.task_name)
+          }) 
+    },
+
+    // Completed tasks for today
+    completedTasks: (state) => {
+      const smartInitials = getSmartInitials(state.familyMembers)
+      
+      return state.dailyTasks
+        .filter(task => task.status === 'Completed')
+        .map(task => {
+          const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
+          return {
+            ...task,
+            member_name: member?.name || 'Unknown',
+            member_avatar: smartInitials.get(task.assigned_to) || '?',
+            completed_display_time: task.completed_at ? 
+              new Date(task.completed_at).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}) : 
+              'Unknown time'
+          }
+        })
+        .sort((a, b) => {
+          // Sort by completion time, most recent first
+          if (!a.completed_at) return 1
+          if (!b.completed_at) return -1
+          return new Date(b.completed_at) - new Date(a.completed_at)
+        })
+    },
+
+    // Get current period name for display
+    currentPeriodName: () => {
+      const hour = new Date().getHours()
+      if (hour < 12) return 'This Morning'
+      if (hour < 18) return 'This Afternoon' 
+      if (hour < 24) return 'This Evening'
+      return 'Tonight'
+    },
+
+    // Get next period name
+    nextPeriodName: () => {
+      const hour = new Date().getHours()
+      if (hour < 12) return 'This Afternoon'
+      if (hour < 18) return 'This Evening'
+      if (hour < 24) return 'Tonight'
+      return 'Tomorrow Morning'
+    },
+
+    // Enhanced tasks by member with timing info
+    tasksByMember: (state) => {
+      const memberMap = {}
+      
+      // Initialize all family members
+      state.familyMembers.forEach(member => {
+        memberMap[member.member_id] = {
+          ...member,
+          tasks: [],
+          progress: { completed: 0, total: 0, percentage: 0, overdue: 0 }
+        }
+      })
     
-    return state.dailyTasks
-      .filter(task => task.status === 'Completed')
-      .map(task => {
-        const member = state.familyMembers.find(m => m.member_id === task.assigned_to)
+      // Add tasks to members with timing info
+      state.dailyTasks.forEach(task => {
+        if (memberMap[task.assigned_to]) {
+          const enhancedTask = {
+            ...task,
+            is_overdue: timingService.isTaskOverdue(task),
+            is_due_now: timingService.isTaskDueNow(task),
+            display_time: timingService.formatDisplayTime(task.due_time || task.due)
+          }
+          memberMap[task.assigned_to].tasks.push(enhancedTask)
+        }
+      })
+      
+      // Calculate enhanced progress
+      Object.values(memberMap).forEach(member => {
+        const completed = member.tasks.filter(t => t.status === 'Completed').length
+        const overdue = member.tasks.filter(t => t.is_overdue && t.status !== 'Completed').length
+        const total = member.tasks.length
+        member.progress = {
+          completed,
+          total,
+          overdue,
+          percentage: total > 0 ? Math.round((completed / total) * 100) : 0
+        }
+      })
+      
+      return memberMap
+    },
+
+    // Tasks grouped by person with proper sorting for person-oriented UI
+    tasksByPersonGrouped: (state) => {
+      const smartInitials = getSmartInitials(state.familyMembers)
+      
+      // Separate people and pets
+      const people = state.familyMembers.filter(m => m.member_type === 'Person')
+      const pets = state.familyMembers.filter(m => m.member_type === 'Pet')
+      
+      // Period order for sorting
+      const periodOrder = { 'Morning': 1, 'Afternoon': 2, 'Evening': 3 }
+      
+      // Helper function to process member's tasks
+      const processMemberTasks = (member) => {
+        // Get all tasks for this member
+        const memberTasks = state.dailyTasks
+          .filter(task => task.assigned_to === member.member_id)
+          .map(task => ({
+            ...task,
+            member_name: member.name,
+            member_avatar: smartInitials.get(member.member_id) || '?',
+            is_overdue: timingService.isTaskOverdue(task),
+            is_completed: task.status === 'Completed',
+            display_time: timingService.formatDisplayTime(task.due_time || task.due),
+            overdue_message: timingService.isTaskOverdue(task) ? timingService.getOverdueMessage(task) : null,
+            // Get period for sorting (Morning, Afternoon, Evening)
+            period: task.due_time || task.due || 'Evening',
+            period_order: periodOrder[task.due_time || task.due] || 99
+          }))
+          // Sort: overdue first, then by period (Morning → Afternoon → Evening)
+          .sort((a, b) => {
+            // Overdue tasks always first
+            if (a.is_overdue && !b.is_overdue) return -1
+            if (!a.is_overdue && b.is_overdue) return 1
+            
+            // Within same overdue status, sort by period
+            return a.period_order - b.period_order
+          })
+        
+        // Calculate progress
+        const completed = memberTasks.filter(t => t.is_completed).length
+        const total = memberTasks.length
+        
         return {
-          ...task,
-          member_name: member?.name || 'Unknown',
-          member_avatar: smartInitials.get(task.assigned_to) || '?',
-          completed_display_time: task.completed_at ? 
-            new Date(task.completed_at).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'}) : 
-            'Unknown time'
+          member_id: member.member_id,
+          name: member.name,
+          member_type: member.member_type,
+          avatar: smartInitials.get(member.member_id) || '?',
+          tasks: memberTasks,
+          progress: {
+            completed,
+            total,
+            percentage: total > 0 ? Math.round((completed / total) * 100) : 0
+          }
         }
-      })
-      .sort((a, b) => {
-        // Sort by completion time, most recent first
-        if (!a.completed_at) return 1
-        if (!b.completed_at) return -1
-        return new Date(b.completed_at) - new Date(a.completed_at)
-      })
-  },
-
-  // Get current period name for display
-  currentPeriodName: () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'This Morning'
-    if (hour < 18) return 'This Afternoon' 
-    if (hour < 24) return 'This Evening'
-    return 'Tonight'
-  },
-
-  // Get next period name
-  nextPeriodName: () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'This Afternoon'
-    if (hour < 18) return 'This Evening'
-    if (hour < 24) return 'Tonight'
-    return 'Tomorrow Morning'
-  },
-
-  // Enhanced tasks by member with timing info
-  tasksByMember: (state) => {
-    const memberMap = {}
-    
-    // Initialize all family members
-    state.familyMembers.forEach(member => {
-      memberMap[member.member_id] = {
-        ...member,
-        tasks: [],
-        progress: { completed: 0, total: 0, percentage: 0, overdue: 0 }
       }
-    })
-    
-    // Add tasks to members with timing info
-    state.dailyTasks.forEach(task => {
-      if (memberMap[task.assigned_to]) {
-        const enhancedTask = {
-          ...task,
-          is_overdue: timingService.isTaskOverdue(task),
-          is_due_now: timingService.isTaskDueNow(task),
-          display_time: timingService.formatDisplayTime(task.due_time || task.due)
-        }
-        memberMap[task.assigned_to].tasks.push(enhancedTask)
+      
+      // Process people (expect 2: Marjorie, Bob)
+      const peopleWithTasks = people.map(processMemberTasks)
+      
+      // Process pets (expect 3: Layla, Lucy, Sadie)
+      const petsWithTasks = pets.map(processMemberTasks)
+      
+      return {
+        people: peopleWithTasks,
+        pets: petsWithTasks
       }
-    })
-    
-    // Calculate enhanced progress
-    Object.values(memberMap).forEach(member => {
-      const completed = member.tasks.filter(t => t.status === 'Completed').length
-      const overdue = member.tasks.filter(t => t.is_overdue && t.status !== 'Completed').length
-      const total = member.tasks.length
-      member.progress = {
-        completed,
-        total,
-        overdue,
-        percentage: total > 0 ? Math.round((completed / total) * 100) : 0
-      }
-    })
-    
-    return memberMap
-  },
+    },
 
   // Separate people and pets
   people: (state) => state.familyMembers.filter(m => m.member_type === 'Person'),
