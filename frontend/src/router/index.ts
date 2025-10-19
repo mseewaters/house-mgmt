@@ -7,6 +7,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('../components/HomePage.vue')
+    },
+    {
+      path: '/clock',
+      name: 'clock',
+      component: () => import('../components/ClockView.vue')
     }
   ]
 })
