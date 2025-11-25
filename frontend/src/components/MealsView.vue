@@ -37,12 +37,13 @@
     </div>
 
     <!-- Meals by Date -->
-    <div v-else class="meals-by-date">
-      <div 
-        v-for="(mealsForDate, date) in mealsByDate" 
-        :key="date" 
-        class="date-section"
-      >
+    <div v-else class="meals-content">
+      <div class="meals-by-date">
+        <div 
+          v-for="(mealsForDate, date) in mealsByDate" 
+          :key="date" 
+          class="date-section"
+        >
         <!-- Date Header with Expand/Collapse -->
         <div class="date-header-wrapper" @click="toggleDateSection(date)">
           <h3 class="date-header">
@@ -106,6 +107,7 @@
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -259,6 +261,15 @@ onMounted(() => {
   padding: 0.75rem;
   max-width: 1200px;
   margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.meals-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
 }
 
 .header {
