@@ -102,6 +102,7 @@ from routes.family_members import router as family_router
 from routes.recurring_tasks import router as recurring_tasks_router
 from routes.daily_tasks import router as daily_tasks_router
 from routes.weather import router as weather_router
+from routes.meals import router as meals_router
 
 # Register routes
 app.include_router(health_router)
@@ -109,6 +110,7 @@ app.include_router(family_router)
 app.include_router(recurring_tasks_router)
 app.include_router(daily_tasks_router)
 app.include_router(weather_router)
+app.include_router(meals_router)
 
 # Add test endpoint for correlation ID verification
 @app.get("/api/test/correlation")

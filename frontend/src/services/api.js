@@ -122,6 +122,37 @@ export const apiService = {
     return response.data
   },
 
+  // Meals
+  async getMeals(params = {}) {
+    const response = await api.get('/api/meals', { params })
+    return response.data
+  },
+
+  async getMeal(mealId) {
+    const response = await api.get(`/api/meals/${mealId}`)
+    return response.data
+  },
+
+  async updateMealStatus(mealId, statusUpdate) {
+    const response = await api.put(`/api/meals/${mealId}/status`, statusUpdate)
+    return response.data
+  },
+
+  async prepareMeal(mealId) {
+    const response = await api.put(`/api/meals/${mealId}/prepare`)
+    return response.data
+  },
+
+  async unprepareMeal(mealId) {
+    const response = await api.put(`/api/meals/${mealId}/unprepare`)
+    return response.data
+  },
+
+  async deleteMeal(mealId) {
+    await api.delete(`/api/meals/${mealId}`)
+    return true
+  },
+
   // Test connectivity
   async testApiConnectivity() {
     try {

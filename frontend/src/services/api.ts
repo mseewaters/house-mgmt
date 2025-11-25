@@ -32,4 +32,55 @@ export async function testApiConnectivity() {
   }
 }
 
+// Meal API functions
+export async function fetchMealsAPI(params = {}) {
+  try {
+    const response = await api.get('/api/meals', { params })
+    return response.data
+  } catch (error) {
+    console.error('Failed to fetch meals:', error)
+    throw error
+  }
+}
+
+export async function getMealByIdAPI(mealId: string) {
+  try {
+    const response = await api.get(`/api/meals/${mealId}`)
+    return response.data
+  } catch (error) {
+    console.error(`Failed to fetch meal ${mealId}:`, error)
+    throw error
+  }
+}
+
+export async function updateMealStatusAPI(mealId: string, statusUpdate: { status: string }) {
+  try {
+    const response = await api.put(`/api/meals/${mealId}/status`, statusUpdate)
+    return response.data
+  } catch (error) {
+    console.error(`Failed to update meal ${mealId} status:`, error)
+    throw error
+  }
+}
+
+export async function prepareMealAPI(mealId: string) {
+  try {
+    const response = await api.put(`/api/meals/${mealId}/prepare`)
+    return response.data
+  } catch (error) {
+    console.error(`Failed to prepare meal ${mealId}:`, error)
+    throw error
+  }
+}
+
+export async function unprepareMealAPI(mealId: string) {
+  try {
+    const response = await api.put(`/api/meals/${mealId}/unprepare`)
+    return response.data
+  } catch (error) {
+    console.error(`Failed to unprepare meal ${mealId}:`, error)
+    throw error
+  }
+}
+
 export default api

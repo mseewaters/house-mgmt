@@ -118,19 +118,6 @@ function getPersonClass(memberId) {
   return colors[index % colors.length]
 }
 
-// Helper: Get day name from date string
-function getDayName(dateStr) {
-  const date = new Date(dateStr)
-  const today = new Date()
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  
-  if (date.toDateString() === tomorrow.toDateString()) {
-    return 'Tomorrow'
-  }
-  
-  return date.toLocaleDateString('en-US', { weekday: 'long' })
-}
 
 // Helper: Get weather emoji
 function getWeatherEmoji(icon) {

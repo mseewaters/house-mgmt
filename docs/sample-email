@@ -1,0 +1,1132 @@
+Return-Path: <see_waters@comcast.net>
+Received: from resqmta-a2p-658780.sys.comcast.net (resqmta-a2p-658780.sys.comcast.net [96.103.146.53])
+ by inbound-smtp.us-east-1.amazonaws.com with SMTP id nlvfnun6rfr1tvol37pulg853julmr4afu2hea81
+ for recipe@weather-ahead.com;
+ Mon, 24 Nov 2025 23:23:27 +0000 (UTC)
+X-SES-Spam-Verdict: PASS
+X-SES-Virus-Verdict: PASS
+Received-SPF: pass (spfCheck: domain of comcast.net designates 96.103.146.53 as permitted sender) client-ip=96.103.146.53; envelope-from=see_waters@comcast.net; helo=resqmta-a2p-658780.sys.comcast.net;
+Authentication-Results: amazonses.com;
+ spf=pass (spfCheck: domain of comcast.net designates 96.103.146.53 as permitted sender) client-ip=96.103.146.53; envelope-from=see_waters@comcast.net; helo=resqmta-a2p-658780.sys.comcast.net;
+ dkim=pass header.i=@comcast.net;
+ dmarc=pass header.from=comcast.net;
+X-SES-RECEIPT: AEFBQUFBQUFBQUFFaStJancxVUZMT05CWXhLK1pHcWREaEpKZ09tY0d3MnZFRnRybDN0Q3N3TjNKTUdITFFMUis5bTNoWmZDMC9oRVN6NFcxQjhLRENGVGNZYmR6SCsva1Iwajhzdms5THQyWVQ1a3ZFS014QlIwZEpxSFovZU9PdldOOGZ3bnRKaVRqRTV5UUhGeTk1K3hXejlGQWREbkQrWXl6VE5zdmhsNEFBYllyOVJBazhTMEllRCtpSjZYM1pnb3JBR3FjamZ0U0NzcHgxTkpDS3dnNlFrMEU2WER3R1BqTXNJczE1ZW5qQkEySUNlNllwbTZpRWU1L3ZuVHk5WExTalRVd0RTckhmNERzUmJ1RkM5aHhCaldkSlhIUU1VWktJR3JRdHdOY1lmQm1JU0NTWVE9PQ==
+X-SES-DKIM-SIGNATURE: a=rsa-sha256; q=dns/txt; b=GO+LmV0sbTzPyC9qGd/fVD1S9f3GXaZOhJlCSpP3kUwfZv9lCHDkX6RBcct+/N5V3x7uGYXqS2/e+bu570hIp5gGruS4xmamPo05hnVhx2IV9/VIe0xkz913M1/vYJejsL+MR/83JpZHF7o1JxPz8Pz3g0T+1zdeROEPwR05gzc=; c=relaxed/simple; s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw; d=amazonses.com; t=1764026607; v=1; bh=NSwoj4cVefsDPBVfF5TrzyB0qPy9GqkGpiLBMjzJpJ0=; h=From:To:Cc:Bcc:Subject:Date:Message-ID:MIME-Version:Content-Type:X-SES-RECEIPT;
+Received: from resomta-a2p-647653.sys.comcast.net ([96.103.145.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 256/256 bits)
+	(Client did not present a certificate)
+	by resqmta-a2p-658780.sys.comcast.net with ESMTPS
+	id NcnNvorg7QpYbNfu2vPLD8; Mon, 24 Nov 2025 23:23:26 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=comcast.net;
+	s=20190202a; t=1764026606;
+	bh=Lmp94Ox1s7cFySv6IlE7EWn062FyCIQeupf/zcyW4ic=;
+	h=Received:Received:Date:From:To:Message-ID:Subject:MIME-Version:
+	 Content-Type:Xfinity-Spam-Result;
+	b=P4lcv7YAgH3EjjnD7jSKPLn/aBA0+MDwJ2gkE8wBjgQKV7PQzKbjXgpRrdvLdiz+P
+	 goHBapiXqZOxapwkPoxyg0h8zGNroPT9lzgyw82pmvTfC9ldxbwi6hwezbR7ucuoyA
+	 UKZOl/sdTA9wUSlgk5+v9MLo110JMrDn5nKSLjD58BqToXIsgx/by9ZzlQw6LlXUcT
+	 AYQRnT4YLAbN/+mNxUDQFCmnjbdobAVG9cHACT/1VJWFiQryF4QQm8D+73365BskCW
+	 dA65r6aByroThl5iq7Knb8HdCw4mXHAxxs517Cr8K2YLjLsvvFIHbGMB1thuJUEJB7
+	 5b/B+4wU7FPZA==
+Received: from oxapp-asd-06o.email.comcast.net ([96.116.138.253])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 256/256 bits)
+	(Client did not present a certificate)
+	by resomta-a2p-647653.sys.comcast.net with ESMTPS
+	id Nfu1vSLFpvAuwNfu2vrPVk; Mon, 24 Nov 2025 23:23:26 +0000
+Date: Mon, 24 Nov 2025 18:23:25 -0500 (EST)
+From: Marjorie Waters LAST_NAME <see_waters@comcast.net>
+To: "recipe@weather-ahead.com" <recipe@weather-ahead.com>
+Message-ID: <1644931267.1057744.1764026605841@connect.xfinity.com>
+In-Reply-To: <ee540a6a-a74e-4d70-bcd3-bea96037e9ed@atl1s07mta1530.xt.local>
+References: <ee540a6a-a74e-4d70-bcd3-bea96037e9ed@atl1s07mta1530.xt.local>
+Subject: =?UTF-8?Q?Fwd:_This_week=E2=80=99s_menu_just_went_li?=
+ =?UTF-8?Q?ve!_Here's_what's_coming_next_week?=
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_1057743_351735964.1764026605812"
+X-Priority: 3
+Importance: Normal
+X-Mailer: Open-Xchange Mailer v7.10.6-Rev59
+X-Originating-IP: ::ffff:174.57.209.26
+X-Originating-Client: open-xchange-appsuite
+X-CMAE-Envelope: MS4xfE524ZLGWoNNVSGbEOolyEtm+BbUCgSZ+8aOHgKCNOyz0GyP1UoXz0h8/1WW0oiMCZjxqqDwi/LznJDjqQDK410TgXH4rMQBmoyXugqkITBn0/+CuPEm
+ W5hx7jYWyK4LXhjStyJ7yZTR4hAcPA3TP9oYXcYkY8xuLiiVQM9mpwfEr5fXt2Csm/u8Q6+BXN4I9M7misMnPUNTAxBYYzjM48UH6A+h+KRyrkICFKhSZqk6
+
+------=_Part_1057743_351735964.1764026605812
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+=20
+
+> ---------- Original Message ----------
+> From: Home Chef <support@e.homechef.com>
+> To: see_waters@comcast.net
+> Date: 11/24/2025 12:24 PM EST
+> Subject: This week=E2=80=99s menu just went live! Here's what's coming ne=
+xt week
+> =20
+> =20
+>=20
+> =20
+> Make updates by Friday at 12PM CT =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F=20
+> =20
+> =20
+> [Home Chef] https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c1024c410e39c=
+dc06a677e6e47041ec70c9596e83bea091272a6ef2f427debe3711829c82aaa2372623cca36=
+ffeadefed679d64684263f03c7a
+>=20
+> Week of Friday, December 5 https://click.e.homechef.com/?qs=3Dd6a347a1d7b=
+e9c107a99a3639ea6078e7c07ecb2847b1ffabe978820b93011e6869c3aabb8354bb139450f=
+6f33a8cb07ab4aea1d3d88d3c0
+> Next week's delivery will arrive on Friday, December 5. You have until Fr=
+iday at 12PM CT to make changes to your order.
+> What=E2=80=99s In Your Box https://click.e.homechef.com/?qs=3Dd6a347a1d7b=
+e9c1013b795946ffb1ee410df527ed633b4c06284507da131d12a532efd22d80d64865102d5=
+5e8eba59e7ab178c103c7102e44b71802034367f10
+>=20
+>=20
+> Sheet Pan Potato-Crusted Chicken
+> with chive crema and cheesy potatoes https://click.e.homechef.com/?qs=3Dd=
+6a347a1d7be9c10f7260bc96caf79c3f9df8a9513f104e5c12fa7b2a6636be5c29950058362=
+4756b9e55900dbe5356bb34d483e10de47817f6fbb0d500cf252
+>=20
+>=20
+> Peruvian-Style Chicken and Rice
+> with spicy pickled vegetables https://click.e.homechef.com/?qs=3Dd6a347a1=
+d7be9c10c88115b46ab05b6107ba4f39ab4d33bd8e5b8f5c7a699852463b63817cdb8a63657=
+504e9584fddc70e29c8e07a1d6e04f009018adf408f6f
+>=20
+>=20
+> Shawarma-Inspired Beef Wraps
+> with hummus https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c1081ee26f69b=
+c9e2537c2ef10b28694c28cc627c90304fc30431ed28041152482c1908b8d29a4b155621353=
+db89a8b5445c98f2c7d9d62282d
+>=20
+>=20
+> Sausage, Egg & Cheese Pancake Sandwich
+> 2 sandwiches included
+> View Full Menu https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c10437b1fa=
+d2c261895e18afda038eb150e85cd4f0566c45e462beed6344fcc9adaaeee57f57f1ef71dda=
+41045e00232c84fe6ce267c374df98
+> [Home Chef x Gordon Ramsay] https://click.e.homechef.com/?qs=3Dd6a347a1d7=
+be9c10b04fdcfd127cbbda1855ab54afa6ee31b009d469b13533e5ca53989f6ac2b1789a519=
+c19ec33f7443dfab9e7eeba1e0ea5379b9f35f9de18 https://click.e.homechef.com/?q=
+s=3Dd6a347a1d7be9c104516c0b6f1575cd041f2f93bdc5b15aa74d159bc9818f7ffd248cf1=
+864506ced300a59b2b381f4bf2bb9d4d4aedb76f7f2975ae5c18b042b
+>=20
+>=20
+> Stunning Salmon Piccata
+> and roasted tomato caper pasta https://click.e.homechef.com/?qs=3Dd6a347a=
+1d7be9c100236e4396444d3432bfdf1dd4499c0bab1cbc406d4ac3d24290e5dcccd83806700=
+33e136ebe9045aa83d8edc78ea661dcaeb0e98881760f9
+>=20
+>=20
+> Idiot-Proof Steak Sandwich
+> with tomato relish and chimichurri aioli
+> Explore Meals https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c1025beadb7=
+7587f2114fa0acfa4c23de5da4d8899701c81820cf48cab874e7237504891a9d029dbae222e=
+2e77698f5c0285ff2f86dc7ddc05c
+> [HC Rewards] https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c10685511075=
+ad4533211f59a8dd7a04fa8b43d1d5be7febae6be752ee8deb2b75db9c141edd3c556eb3e0a=
+f575cce470ca7ab79120cc63ce18 https://click.e.homechef.com/?qs=3Dd6a347a1d7b=
+e9c10685511075ad4533211f59a8dd7a04fa8b43d1d5be7febae6be752ee8deb2b75db9c141=
+edd3c556eb3e0af575cce470ca7ab79120cc63ce18
+>=20
+>=20
+> You've earned free extras for 4 weeks!
+> Order Now https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c105ac3f505d65c=
+223d4f3035bd166ad83a00e095b9f311b9b4889723a25a2dc366118800960512747b464de7a=
+8aae2a150bb876b3d7334b56c
+> =20
+> =20
+> =20
+> =20
+> Home Chef 433 W Van Buren St, Suite 750N Chicago, IL, 60607, US
+>=20
+> =20
+>=20
+> Menu https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c109304ec38b85966597=
+0dcd65052c29e99dbe44d1021bf4e9227829aeda17aa37abf29644643a69891174e69023a93=
+d1524598abc27def0290 =09|
+> Account https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c10b4f6734cae3ab4=
+2ec54e80cc6c83ce4d7f5c4271c77748dbe6a00e07b687fe80d8981536a799f9208ad8a8cf2=
+cb1c64ae3d4030fecfd33ba =09|
+> FAQs https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c1083a2c6871d1e01cc8=
+4bf73be9d71c85808d4df014ae7578dbb65074998dd426ab3604a1ae58aaadfe383f7ae24e5=
+0eed4fd94a11fa8031ce
+> [Facebook] https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c10a4276ac9704=
+908079d383e4aeb0c507a187d6b92e0d1ff7dfa639f53a2490fbff932be5c5d0f5b7f12660f=
+f0cf796feb94407c8c14a0fc7f =09 [Instagram] https://click.e.homechef.com/?qs=
+=3Dd6a347a1d7be9c10f27720f893d8eef508ef8c44a71d653852cd754ce2c5f65af6d83982=
+a4a2adbe59e94d5cb4bab377b1d1f412a15588687851bbd60bfe488d =09 [Twitter] http=
+s://click.e.homechef.com/?qs=3Dd6a347a1d7be9c100589358d7323af7d783b87726c3a=
+e08500e393c4aefd0fe20d985f8f0fc355d87b048fd54459e94fb0d2e7ec59f31821e5620a0=
+c3c2a840c =09 [Pinterest] https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c=
+10186bde417d269362e2b32dca2615b2c740d8cc2a85969a421add10992f835f9f1b3644455=
+bd06fe645e81c3408597576ef567d627d43ab7c
+> [Download on the App Store] https://click.e.homechef.com/?qs=3Dd6a347a1d7=
+be9c10f0fa6498b56c3be607018eb1efaa508631b4785436afa2b437a371f2db8f235648074=
+ae0057bdf3cf81afd53e022ca749f753bb40b90424d =09 [Get it on Google Play] htt=
+ps://click.e.homechef.com/?qs=3Dd6a347a1d7be9c109ad4672a4dffb39550f6c2d9235=
+34391e498e2e5db31136ff0391453c1fc56e0b2281518d9dce8b0f33946fa8f37fecff1b1d9=
+95ce1d0b93
+> GOT QUESTIONS? Please do not reply to this email. We've got answers here.=
+ https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c105c1d6e7f6d6748ea3495fcb=
+fadcf880896b2fc17f39a6ded74aa457ce76aefceb3dca9375e3b09c93c5cd8008060c9735b=
+d607e59eaed352
+> View this email in your browser. https://view.e.homechef.com/?qs=3D6d6529=
+b92bc030eb10aea69cd068eb07493e2c069dbe12d504756a92915244d6c9c18ae848a3834f8=
+661a0536e5cdbfc23f2f2454932429f8f28cc42ce3caf6d52c61423ae36e90bd7e96eb5b68b=
+6e27
+> 433 W Van Buren St, Suite 750N =E2=80=A2 Chicago, IL, 60607
+> [Home Chef]
+>=20
+
+------=_Part_1057743_351735964.1764026605812
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!doctype html>
+<html>
+ <head>=20
+  <meta charset=3D"UTF-8">=20
+ </head>
+ <body>
+  <div>
+   &nbsp;
+  </div>=20
+  <blockquote type=3D"cite">=20
+   <div>
+    ---------- Original Message ----------
+   </div>=20
+   <div>
+    From: Home Chef &lt;support@e.homechef.com&gt;
+   </div>=20
+   <div>
+    To: see_waters@comcast.net
+   </div>=20
+   <div>
+    Date: 11/24/2025 12:24 PM EST
+   </div>=20
+   <div>
+    Subject: This week=E2=80=99s menu just went live! Here's what's coming =
+next week
+   </div>=20
+   <div>
+    &nbsp;
+   </div>=20
+   <div>
+    &nbsp;
+   </div>=20
+   <center style=3D"width: 100%; -webkit-text-size-adjust: 100%; -ms-text-s=
+ize-adjust: 100%;">=20
+    <table class=3D"full-wrap" style=3D"border: 0; width: 100%;" width=3D"1=
+00%" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" aria-label=3D"Ema=
+il from Home Chef">=20
+     <tbody>=20
+      <tr>=20
+       <td align=3D"center">=20
+        <div class=3D"gmail" style=3D"max-width: 600px; background-color: #=
+f7f7f7; margin: 0 auto 0 auto;">=20
+         <table class=3D"dm404851" style=3D"margin: 0 auto; width: 100%; ma=
+x-width: 600px; background-color: #ffffff;" cellspacing=3D"0" cellpadding=
+=3D"0" align=3D"center">=20
+          <tbody>=20
+           <tr>=20
+            <td>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">=
+=20
+                 <div style=3D"display: none;">
+                  &nbsp;
+                 </div> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <div style=3D"visibility: hidden; color: transparent; display:=
+ none; font-size: 0px; line-height: 0px; max-height: 0px; max-width: 0px; w=
+idth: 0px; opacity: 0; overflow: hidden;">
+              Make updates by Friday at 12PM CT =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=
+=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =
+=E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=
+=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=
+=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=
+=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=
+=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F=
+ =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=87=C2=AD=CD=8F =E2=80=
+=87=C2=AD=CD=8F&nbsp;
+             </div>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"backgro=
+und-color: transparent; border: 0px; min-width: 100%;" width=3D"100%" cells=
+pacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner" s=
+tyle=3D"padding: 0px;">&nbsp;</td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"backgro=
+und-color: transparent; border: 0px; min-width: 100%;" width=3D"100%" cells=
+pacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner" s=
+tyle=3D"padding: 0px;">=20
+                 <div style=3D"visibility: hidden; color: transparent; disp=
+lay: none; font-size: 0px; line-height: 0px; max-height: 0px; max-width: 0p=
+x; width: 0px; opacity: 0; overflow: hidden;">
+                  &nbsp;
+                 </div> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"backgro=
+und-color: transparent; min-width: 100%;" width=3D"100%" cellspacing=3D"0" =
+cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner" s=
+tyle=3D"padding: 0px;">=20
+                 <table style=3D"width: 100%;" border=3D"0" width=3D"100%" =
+cellspacing=3D"0" cellpadding=3D"0">=20
+                  <tbody>=20
+                   <tr>=20
+                    <td class=3D"pads35m" style=3D"padding: 29px 21px 5px; =
+font-family: 'Karla', 'Helvetica Neue', sans-serif; font-size: 16px;" align=
+=3D"center"><a style=3D"color: #007200; text-decoration: none;" href=3D"htt=
+ps://click.e.homechef.com/?qs=3Dd6a347a1d7be9c1024c410e39cdc06a677e6e47041e=
+c70c9596e83bea091272a6ef2f427debe3711829c82aaa2372623cca36ffeadefed679d6468=
+4263f03c7a"> <img style=3D"border: 0; width: 100%; max-width: 250px; height=
+: auto;" src=3D"https://image.e.homechef.com/lib/fe8f13727c62017f74/m/20/ho=
+me_chef_logo_ey.png" alt=3D"Home Chef" width=3D"250"> </a> <p class=3D"" st=
+yle=3D"padding: 0; margin: 6px 0 0; color: #008600; font-size: 18px; line-h=
+eight: 150%; font-family: 'Karla', 'Helvetica Neue', sans-serif; font-weigh=
+t: bold;">Week of Friday, December 5</p> </td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">=
+=20
+                 <table width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=
+=20
+                  <tbody>=20
+                   <tr>=20
+                    <td align=3D"center"><a style=3D"text-decoration: none;=
+ background-color: #ffffff; color: #4a4a4a;" href=3D"https://click.e.homech=
+ef.com/?qs=3Dd6a347a1d7be9c107a99a3639ea6078e7c07ecb2847b1ffabe978820b93011=
+e6869c3aabb8354bb139450f6f33a8cb07ab4aea1d3d88d3c0" data-linkto=3D"other"><=
+img style=3D"display: block; padding: 0px; text-align: center; height: auto=
+; width: 100%;" src=3D"https://image.e.homechef.com/lib/fe8f13727c62017f74/=
+m/1/take+a+peek+evergreen.png" alt=3D"" width=3D"1200" data-assetid=3D"5333=
+60"></a></td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">=
+=20
+                 <table style=3D"width: 100%;" border=3D"0" width=3D"100%" =
+cellspacing=3D"0" cellpadding=3D"0">=20
+                  <tbody>=20
+                   <tr>=20
+                    <td class=3D"pads35m" style=3D"padding: 10px 35px 25px;=
+" align=3D"center"> <p class=3D"font18m" style=3D"padding: 0; margin: 0; fo=
+nt-family: 'Karla', 'Helvetica', sans-serif; font-size: 16px; line-height: =
+150%; color: #4a4a4a; text-align: center;">Next week's delivery will arrive=
+ on <strong>Friday, December 5</strong>. You have until <strong>Friday at 1=
+2PM CT</strong> to make changes to your order.</p> </td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">=
+=20
+                 <table style=3D"width: 100%;" border=3D"0" width=3D"100%" =
+cellspacing=3D"0" cellpadding=3D"0">=20
+                  <tbody>=20
+                   <tr>=20
+                    <td style=3D"padding: 0px 35px 25px;" align=3D"center">=
+ <h1 class=3D"serif dmc008600" style=3D"padding: 0; margin: 0; font-family:=
+ 'LeMondeCourrier', Georgia, Times, Times New Roman, serif; font-size: 26px=
+; line-height: 125%; color: #008600; text-align: center;">What=E2=80=99s In=
+ Your Box</h1> </td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">=
+=20
+                 <table style=3D"width: 100%;" border=3D"0" width=3D"100%" =
+cellspacing=3D"0" cellpadding=3D"0">=20
+                  <tbody>=20
+                   <tr>=20
+                    <td class=3D"pads35m" style=3D"padding: 0px 29px;" alig=
+n=3D"center">=20
+                     <table style=3D"border: 0; width: 100%; max-width: 542=
+px;" width=3D"542" cellspacing=3D"0" cellpadding=3D"0">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td class=3D"three-column" style=3D"font-size: 0; p=
+adding: 0px; text-align: center;">=20
+                         <div class=3D"column" style=3D"width: 100%; max-wi=
+dth: 180px; display: inline-block; vertical-align: top;">=20
+                          <table style=3D"border: 0; width: 100%;" width=3D=
+"100%" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                           <tbody>=20
+                            <tr>=20
+                             <td class=3D"pad0m" style=3D"padding: 14px 6px=
+; font-family: 'Karla', 'Helvetica Neue', sans-serif; font-size: 16px; colo=
+r: #4a4a4a;" align=3D"center"><a style=3D"color: #4a4a4a; text-decoration: =
+none;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c1013b795946=
+ffb1ee410df527ed633b4c06284507da131d12a532efd22d80d64865102d55e8eba59e7ab17=
+8c103c7102e44b71802034367f10"> <img class=3D"w406m" style=3D"border: 0; wid=
+th: 100%; max-width: 168px; height: auto; display: block;" src=3D"https://a=
+sset.homechef.com/uploads/meal/plated/52753/410896Sheet_Pan_Potato-Crusted_=
+Chicken_Cutlet_ecomm16-10-16-25-113609.jpg" alt=3D"" width=3D"168"> </a> <p=
+ class=3D"oalign mart17m font18m" style=3D"padding: 0; margin: 12px 0 0; fo=
+nt-size: 14px; line-height: 140%; font-family: 'Karla', 'Helvetica Neue', s=
+ans-serif; color: #4a4a4a; text-align: left;"><strong>Sheet Pan Potato-Crus=
+ted Chicken</strong></p> <p class=3D"oalign marb19m font16m" style=3D"paddi=
+ng: 0; margin: 0; font-size: 12px; line-height: 150%; font-family: 'Karla',=
+ 'Helvetica Neue', sans-serif; color: #4a4a4a; text-align: left;">with chiv=
+e crema and cheesy potatoes</p> </td>=20
+                            </tr>=20
+                           </tbody>=20
+                          </table>=20
+                         </div>=20
+                         <div class=3D"column" style=3D"width: 100%; max-wi=
+dth: 180px; display: inline-block; vertical-align: top;">=20
+                          <table style=3D"border: 0; width: 100%;" width=3D=
+"100%" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                           <tbody>=20
+                            <tr>=20
+                             <td class=3D"pad0m" style=3D"padding: 14px 6px=
+; font-family: 'Karla', 'Helvetica Neue', sans-serif; font-size: 16px; colo=
+r: #4a4a4a;" align=3D"center"><a style=3D"color: #4a4a4a; text-decoration: =
+none;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c10f7260bc96=
+caf79c3f9df8a9513f104e5c12fa7b2a6636be5c299500583624756b9e55900dbe5356bb34d=
+483e10de47817f6fbb0d500cf252"> <img class=3D"w406m" style=3D"border: 0; wid=
+th: 100%; max-width: 168px; height: auto; display: block;" src=3D"https://a=
+sset.homechef.com/uploads/meal/plated/51051/968390Peruvian-Style_Chicken_Th=
+igh_Arroz_Con_Pollo_R_D11-05-29-25-115748.jpg" alt=3D"" width=3D"168"> </a>=
+ <p class=3D"oalign mart17m font18m" style=3D"padding: 0; margin: 12px 0 0;=
+ font-size: 14px; line-height: 140%; font-family: 'Karla', 'Helvetica Neue'=
+, sans-serif; color: #4a4a4a; text-align: left;"><strong>Peruvian-Style Chi=
+cken and Rice</strong></p> <p class=3D"oalign marb19m font16m" style=3D"pad=
+ding: 0; margin: 0; font-size: 12px; line-height: 150%; font-family: 'Karla=
+', 'Helvetica Neue', sans-serif; color: #4a4a4a; text-align: left;">with sp=
+icy pickled vegetables</p> </td>=20
+                            </tr>=20
+                           </tbody>=20
+                          </table>=20
+                         </div>=20
+                         <div class=3D"column" style=3D"width: 100%; max-wi=
+dth: 180px; display: inline-block; vertical-align: top;">=20
+                          <table style=3D"border: 0; width: 100%;" width=3D=
+"100%" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                           <tbody>=20
+                            <tr>=20
+                             <td class=3D"pad0m" style=3D"padding: 14px 6px=
+; font-family: 'Karla', 'Helvetica Neue', sans-serif; font-size: 16px; colo=
+r: #4a4a4a;" align=3D"center"><a style=3D"color: #4a4a4a; text-decoration: =
+none;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c10c88115b46=
+ab05b6107ba4f39ab4d33bd8e5b8f5c7a699852463b63817cdb8a63657504e9584fddc70e29=
+c8e07a1d6e04f009018adf408f6f"> <img class=3D"w406m" style=3D"border: 0; wid=
+th: 100%; max-width: 168px; height: auto; display: block;" src=3D"https://a=
+sset.homechef.com/uploads/meal/plated/46431/917486Beef_and_Hummus_Naan_Wrap=
+s_R_D6-06-26-25-105617.jpg" alt=3D"" width=3D"168"> </a> <p class=3D"oalign=
+ mart17m font18m" style=3D"padding: 0; margin: 12px 0 0; font-size: 14px; l=
+ine-height: 140%; font-family: 'Karla', 'Helvetica Neue', sans-serif; color=
+: #4a4a4a; text-align: left;"><strong>Shawarma-Inspired Beef Wraps</strong>=
+</p> <p class=3D"oalign marb19m font16m" style=3D"padding: 0; margin: 0; fo=
+nt-size: 12px; line-height: 150%; font-family: 'Karla', 'Helvetica Neue', s=
+ans-serif; color: #4a4a4a; text-align: left;">with hummus</p> </td>=20
+                            </tr>=20
+                           </tbody>=20
+                          </table>=20
+                         </div>=20
+                         <div class=3D"column" style=3D"width: 100%; max-wi=
+dth: 180px; display: inline-block; vertical-align: top;">=20
+                          <table style=3D"border: 0; width: 100%;" width=3D=
+"100%" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                           <tbody>=20
+                            <tr>=20
+                             <td class=3D"pad0m" style=3D"padding: 14px 6px=
+; font-family: 'Karla', 'Helvetica Neue', sans-serif; font-size: 16px; colo=
+r: #4a4a4a;" align=3D"center"><a style=3D"color: #4a4a4a; text-decoration: =
+none;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c1081ee26f69=
+bc9e2537c2ef10b28694c28cc627c90304fc30431ed28041152482c1908b8d29a4b15562135=
+3db89a8b5445c98f2c7d9d62282d"> <img class=3D"w406m" style=3D"border: 0; wid=
+th: 100%; max-width: 168px; height: auto; display: block;" src=3D"https://a=
+sset.homechef.com/uploads/meal/plated/54820/930782Sausage__Egg___Cheese_Pan=
+cake_Sandwich_ecomm-1-07-15-25-145025.jpg" alt=3D"" width=3D"168"> </a> <p =
+class=3D"oalign mart17m font18m" style=3D"padding: 0; margin: 12px 0 0; fon=
+t-size: 14px; line-height: 140%; font-family: 'Karla', 'Helvetica Neue', sa=
+ns-serif; color: #4a4a4a; text-align: left;"><strong>Sausage, Egg &amp; Che=
+ese Pancake Sandwich</strong></p> <p class=3D"oalign marb0m font16m" style=
+=3D"padding: 0; margin: 0; font-size: 12px; line-height: 150%; font-family:=
+ 'Karla', 'Helvetica Neue', sans-serif; color: #4a4a4a; text-align: left;">=
+2 sandwiches included</p> </td>=20
+                            </tr>=20
+                           </tbody>=20
+                          </table>=20
+                         </div> </td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"backgro=
+und-color: transparent; min-width: 100%;" width=3D"100%" cellspacing=3D"0" =
+cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner" s=
+tyle=3D"padding: 0px;">=20
+                 <table style=3D"width: 100%;" border=3D"0" width=3D"100%" =
+cellspacing=3D"0" cellpadding=3D"0">=20
+                  <tbody>=20
+                   <tr>=20
+                    <td class=3D"pad35m" style=3D"padding: 10px 35px 35px 3=
+5px;" align=3D"center">=20
+                     <table style=3D"width: 100%; max-width: 466px;" width=
+=3D"466" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td class=3D"dghover" style=3D"background-color: #0=
+08600; color: #fef9f5; font-size: 20px; line-height: 24px; font-weight: bol=
+d; border-radius: 50px; font-family: 'Karla', 'Helvetica Neue', sans-serif;=
+" align=3D"center" valign=3D"middle" height=3D"48">=20
+                         <div style=3D"background: transparent; background-=
+image: linear-gradient(transparent,transparent); color: #fff;">=20
+                          <div class=3D"gmail-blend-screen">=20
+                           <div class=3D"gmail-blend-difference">
+                            <a class=3D"keep-white" style=3D"display: block=
+; width: 100%; color: #fef9f5; text-decoration: none; padding-top: 10px; pa=
+dding-bottom: 10px;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7b=
+e9c10437b1fad2c261895e18afda038eb150e85cd4f0566c45e462beed6344fcc9adaaeee57=
+f57f1ef71dda41045e00232c84fe6ce267c374df98" target=3D"_blank" rel=3D"noopen=
+er">View Full Menu</a>
+                           </div>=20
+                          </div>=20
+                         </div> </td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">=
+=20
+                 <table style=3D"width: 100%;" border=3D"0" width=3D"100%" =
+cellspacing=3D"0" cellpadding=3D"0">=20
+                  <tbody>=20
+                   <tr>=20
+                    <td class=3D"pads0m" style=3D"padding: 0; font-family: =
+'Karla', 'Helvetica Neue', sans-serif; font-size: 16px; color: #4a4a4a;" al=
+ign=3D"center"><a style=3D"color: #4a4a4a; text-decoration: none;" href=3D"=
+https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c10b04fdcfd127cbbda1855ab54=
+afa6ee31b009d469b13533e5ca53989f6ac2b1789a519c19ec33f7443dfab9e7eeba1e0ea53=
+79b9f35f9de18"> <img style=3D"border: 0; width: 100%; max-width: 600px; hei=
+ght: auto; display: block;" src=3D"https://image.e.homechef.com/lib/fe8f137=
+27c62017f74/m/1/HCxGR_RetentionRewards_BannerGif.gif" alt=3D"Home Chef x Go=
+rdon Ramsay" width=3D"800"> </a></td>=20
+                   </tr>=20
+                   <tr>=20
+                    <td class=3D"pads35m" style=3D"padding: 15px 29px 0px;"=
+ align=3D"center">=20
+                     <table style=3D"border: 0; width: 100%; max-width: 542=
+px;" width=3D"542" cellspacing=3D"0" cellpadding=3D"0">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td class=3D"three-column-bottom" style=3D"font-siz=
+e: 0; padding: 0px; text-align: center;">=20
+                         <div class=3D"column" style=3D"width: 100%; max-wi=
+dth: 180px; display: inline-block; vertical-align: top;">=20
+                          <table style=3D"border: 0; width: 100%;" width=3D=
+"100%" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                           <tbody>=20
+                            <tr>=20
+                             <td class=3D"pad5m" style=3D"padding: 14px 6px=
+; font-family: 'Karla', 'Helvetica Neue', sans-serif; font-size: 16px; colo=
+r: #4a4a4a;" align=3D"center"><a style=3D"color: #4a4a4a; text-decoration: =
+none;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c104516c0b6f=
+1575cd041f2f93bdc5b15aa74d159bc9818f7ffd248cf1864506ced300a59b2b381f4bf2bb9=
+d4d4aedb76f7f2975ae5c18b042b"> <img class=3D"w406m" style=3D"border: 0; wid=
+th: 100%; max-width: 168px; height: auto; display: block;" src=3D"https://a=
+sset.homechef.com/uploads/meal/plated/50065/GR_Culinary_SalmonPiccata_50065=
+-09-29-25-122133.jpg" alt=3D"" width=3D"168"> </a> <p class=3D"oalign mart1=
+7m" style=3D"padding: 0; margin: 12px 0 0; font-size: 14px; line-height: 14=
+0%; font-family: 'Karla', 'Helvetica Neue', sans-serif; color: #4a4a4a; tex=
+t-align: center;"><strong>Stunning Salmon Piccata</strong></p> <p class=3D"=
+oalign marb19m" style=3D"padding: 0; margin: 0; font-size: 12px; line-heigh=
+t: 150%; font-family: 'Karla', 'Helvetica Neue', sans-serif; color: #4a4a4a=
+; text-align: center;">and roasted tomato caper pasta</p> </td>=20
+                            </tr>=20
+                           </tbody>=20
+                          </table>=20
+                         </div>=20
+                         <div class=3D"column" style=3D"width: 100%; max-wi=
+dth: 180px; display: inline-block; vertical-align: top;">=20
+                          <table style=3D"border: 0; width: 100%;" width=3D=
+"100%" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                           <tbody>=20
+                            <tr>=20
+                             <td class=3D"pad5m" style=3D"padding: 14px 6px=
+; font-family: 'Karla', 'Helvetica Neue', sans-serif; font-size: 16px; colo=
+r: #4a4a4a;" align=3D"center"><a style=3D"color: #4a4a4a; text-decoration: =
+none;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c100236e4396=
+444d3432bfdf1dd4499c0bab1cbc406d4ac3d24290e5dcccd8380670033e136ebe9045aa83d=
+8edc78ea661dcaeb0e98881760f9"> <img class=3D"w406m" style=3D"border: 0; wid=
+th: 100%; max-width: 168px; height: auto; display: block;" src=3D"https://a=
+sset.homechef.com/uploads/meal/plated/50055/GR_Culinary_SteakSandwich_50055=
+-09-29-25-122232.jpg" alt=3D"" width=3D"168"> </a> <p class=3D"oalign mart1=
+7m" style=3D"padding: 0; margin: 12px 0 0; font-size: 14px; line-height: 14=
+0%; font-family: 'Karla', 'Helvetica Neue', sans-serif; color: #4a4a4a; tex=
+t-align: center;"><strong>Idiot-Proof Steak Sandwich</strong></p> <p class=
+=3D"oalign marb0m" style=3D"padding: 0; margin: 0; font-size: 12px; line-he=
+ight: 150%; font-family: 'Karla', 'Helvetica Neue', sans-serif; color: #4a4=
+a4a; text-align: center;">with tomato relish and chimichurri aioli</p> </td=
+>=20
+                            </tr>=20
+                           </tbody>=20
+                          </table>=20
+                         </div> </td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                   <tr>=20
+                    <td>=20
+                     <table style=3D"width: 100%; text-align: center;" bord=
+er=3D"0" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td style=3D"padding: 15px 0 25px;">=20
+                         <table style=3D"width: 100%; max-width: 350px;" wi=
+dth=3D"350" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                          <tbody>=20
+                           <tr>=20
+                            <td class=3D"dmFEF9F5" style=3D"background-colo=
+r: #163645; color: #008600; font-size: 18px; line-height: 24px; font-weight=
+: bold; border-radius: 50px; font-family: 'Karla', 'Helvetica Neue', sans-s=
+erif; display: block;" align=3D"center" valign=3D"middle" height=3D"40"><a =
+class=3D"dmc008600" style=3D"display: block; width: 100%; color: #fff; text=
+-decoration: none; padding-top: 8px; padding-bottom: 10px; border-radius: 5=
+0px;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c1025beadb775=
+87f2114fa0acfa4c23de5da4d8899701c81820cf48cab874e7237504891a9d029dbae222e2e=
+77698f5c0285ff2f86dc7ddc05c" target=3D"_blank" rel=3D"noopener">Explore Mea=
+ls</a></td>=20
+                           </tr>=20
+                          </tbody>=20
+                         </table> </td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">=
+=20
+                 <table style=3D"width: 100%;" border=3D"0" width=3D"100%" =
+cellspacing=3D"0" cellpadding=3D"0">=20
+                  <tbody>=20
+                   <tr>=20
+                    <td class=3D"pads35m" style=3D"padding: 10px 35px 30px;=
+ background-color: #ffffff;" align=3D"center">=20
+                     <table style=3D"width: 100%;" border=3D"0" width=3D"10=
+0%" cellspacing=3D"0" cellpadding=3D"0">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td style=3D"border: 2px solid #d6ba2b;" align=3D"c=
+enter">=20
+                         <table style=3D"width: 100%;" border=3D"0" width=
+=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+                          <tbody>=20
+                           <tr>=20
+                            <td class=3D"dm666c73" style=3D"padding: 0px 0p=
+x; background-color: #ffffff;" align=3D"center"><a style=3D"color: #4a4a4a;=
+ text-decoration: none;" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a=
+1d7be9c10685511075ad4533211f59a8dd7a04fa8b43d1d5be7febae6be752ee8deb2b75db9=
+c141edd3c556eb3e0af575cce470ca7ab79120cc63ce18"> <img style=3D"border: 0; w=
+idth: 100%; max-width: 600px; height: auto; display: block;" src=3D"https:/=
+/image.e.homechef.com/lib/fe8f13727c62017f74/m/1/HCRewards_TransactionalBan=
+ner1_220px.png" alt=3D"HC Rewards" width=3D"600"> </a></td>=20
+                           </tr>=20
+                          </tbody>=20
+                         </table>=20
+                         <table style=3D"width: 100%;" border=3D"0" width=
+=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+                          <tbody>=20
+                           <tr>=20
+                            <td class=3D"dm666c73" style=3D"padding: 0px 0p=
+x 10px;" align=3D"center">=20
+                             <table style=3D"border: 0; width: 100%; backgr=
+ound-color: #ffffff;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=
+=20
+                              <tbody>=20
+                              <tr>=20
+                              <td class=3D"" style=3D"padding: 15px 0px 0px=
+ 25px;" align=3D"center"><a style=3D"color: #4a4a4a; text-decoration: none;=
+" href=3D"https://click.e.homechef.com/?qs=3Dd6a347a1d7be9c10685511075ad453=
+3211f59a8dd7a04fa8b43d1d5be7febae6be752ee8deb2b75db9c141edd3c556eb3e0af575c=
+ce470ca7ab79120cc63ce18"><img style=3D"border: 0; width: 100%; max-width: 5=
+0px; height: auto; display: block;" src=3D"https://image.e.homechef.com/lib=
+/fe8f13727c62017f74/m/1/HCRewards_Dashboard3_Green.png" alt=3D"" width=3D"1=
+00"></a></td>=20
+                              <td align=3D"left"> <h1 class=3D"font18m" sty=
+le=3D"padding: 15px 0 0; margin: 0 10px 3px 20px; font-family: 'Karla', 'He=
+lvetica Neue', sans-serif; font-size: 20px; line-height: 150%; color: #2b2b=
+2b;">You've earned free extras for 4 weeks!</h1> </td>=20
+                              </tr>=20
+                              </tbody>=20
+                             </table> </td>=20
+                           </tr>=20
+                          </tbody>=20
+                         </table>=20
+                         <table style=3D"width: 100%;" border=3D"0" width=
+=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+                          <tbody>=20
+                           <tr>=20
+                            <td style=3D"padding: 10px 20px 20px;" align=3D=
+"center">=20
+                             <table style=3D"width: 100%; max-width: 250px;=
+" width=3D"250" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                              <tbody>=20
+                              <tr>=20
+                              <td style=3D"background-color: #d6ba2a; color=
+: #fef9f5; font-size: 18px; line-height: 24px; font-weight: bold; border-ra=
+dius: 50px; font-family: 'Karla', 'Helvetica Neue', sans-serif;" align=3D"c=
+enter" valign=3D"middle" height=3D"48"><a class=3D"keep-white" style=3D"dis=
+play: block; width: 100%; color: #fef9f5; text-decoration: none; padding-to=
+p: 10px; padding-bottom: 10px;" href=3D"https://click.e.homechef.com/?qs=3D=
+d6a347a1d7be9c105ac3f505d65c223d4f3035bd166ad83a00e095b9f311b9b4889723a25a2=
+dc366118800960512747b464de7a8aae2a150bb876b3d7334b56c" target=3D"_blank" re=
+l=3D"noopener">Order Now</a></td>=20
+                              </tr>=20
+                              </tbody>=20
+                             </table> </td>=20
+                           </tr>=20
+                          </tbody>=20
+                         </table> </td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">&=
+nbsp;</td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">&=
+nbsp;</td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">&=
+nbsp;</td>=20
+               </tr>=20
+              </tbody>=20
+             </table>=20
+             <table class=3D"stylingblock-content-wrapper" style=3D"min-wid=
+th: 100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td class=3D"stylingblock-content-wrapper camarker-inner">&=
+nbsp;</td>=20
+               </tr>=20
+              </tbody>=20
+             </table> <span style=3D"display: none; overflow: hidden; font-=
+size: 0; line-height: 0;">Home Chef 433 W Van Buren St, Suite 750N Chicago,=
+ IL, 60607, US</span></td>=20
+           </tr>=20
+          </tbody>=20
+         </table>=20
+         <table class=3D"stylingblock-content-wrapper" style=3D"min-width: =
+100%;" width=3D"100%" cellspacing=3D"0" cellpadding=3D"0">=20
+          <tbody>=20
+           <tr>=20
+            <td class=3D"stylingblock-content-wrapper camarker-inner">=20
+             <table class=3D"dm404851 dmb2b2b2b" style=3D"width: 100%; back=
+ground-color: #f7f7f7;" border=3D"0" width=3D"100%" cellspacing=3D"0" cellp=
+adding=3D"0">=20
+              <tbody>=20
+               <tr>=20
+                <td>=20
+                 <table style=3D"width: 100%;" width=3D"100%" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"center">=20
+                  <tbody>=20
+                   <tr>=20
+                    <td style=3D"padding: 30px 35px;"> <p class=3D"font16m"=
+ style=3D"font-family: 'Karla', 'Helvetica Neue', sans-serif; font-size: 12=
+px; line-height: 22px; color: #9b9b9b;">&nbsp;</p> </td>=20
+                   </tr>=20
+                   <tr>=20
+                    <td style=3D"padding: 0 35px 30px;">=20
+                     <table style=3D"width: 100%;" width=3D"100%" cellspaci=
+ng=3D"0" cellpadding=3D"0" align=3D"center">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td>=20
+                         <table class=3D"w100mm" width=3D"33%" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"left">=20
+                          <tbody>=20
+                           <tr>=20
+                            <td class=3D"footernavbordertop" style=3D"font-=
+family: 'Karla', Arial, sans-serif; font-size: 16px; line-height: 20px; col=
+or: #404851; text-align: center; text-transform: uppercase;"><a class=3D"" =
+style=3D"color: #008600; text-decoration: none;" href=3D"https://click.e.ho=
+mechef.com/?qs=3Dd6a347a1d7be9c109304ec38b859665970dcd65052c29e99dbe44d1021=
+bf4e9227829aeda17aa37abf29644643a69891174e69023a93d1524598abc27def0290" tar=
+get=3D"_blank" rel=3D"noopener">Menu</a></td>=20
+                            <td class=3D"hidemm" style=3D"font-family: 'Kar=
+la', arial, sans-serif; font-size: 16px; line-height: 20px; color: #404851;=
+ text-align: center;">|</td>=20
+                           </tr>=20
+                          </tbody>=20
+                         </table>=20
+                         <table class=3D"w100mm" width=3D"33%" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"left">=20
+                          <tbody>=20
+                           <tr>=20
+                            <td class=3D"footernavbordertop" style=3D"font-=
+family: 'Karla', arial, sans-serif; font-size: 16px; line-height: 20px; col=
+or: #404851; text-align: center; text-transform: uppercase;"><a class=3D"" =
+style=3D"color: #008600; text-decoration: none;" href=3D"https://click.e.ho=
+mechef.com/?qs=3Dd6a347a1d7be9c10b4f6734cae3ab42ec54e80cc6c83ce4d7f5c4271c7=
+7748dbe6a00e07b687fe80d8981536a799f9208ad8a8cf2cb1c64ae3d4030fecfd33ba" tar=
+get=3D"_blank" rel=3D"noopener">Account</a></td>=20
+                            <td class=3D"hidemm" style=3D"font-family: 'Kar=
+la', arial, sans-serif; font-size: 16px; line-height: 20px; color: #404851;=
+ text-align: center;">|</td>=20
+                           </tr>=20
+                          </tbody>=20
+                         </table>=20
+                         <table class=3D"w100mm" width=3D"33%" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"left">=20
+                          <tbody>=20
+                           <tr>=20
+                            <td class=3D"footernavbordertop footernavborder=
+bot" style=3D"font-family: 'Karla', arial, sans-serif; font-size: 16px; lin=
+e-height: 20px; color: #404851; text-align: center;"><a class=3D"" style=3D=
+"color: #008600; text-decoration: none;" href=3D"https://click.e.homechef.c=
+om/?qs=3Dd6a347a1d7be9c1083a2c6871d1e01cc84bf73be9d71c85808d4df014ae7578dbb=
+65074998dd426ab3604a1ae58aaadfe383f7ae24e50eed4fd94a11fa8031ce" target=3D"_=
+blank" rel=3D"noopener">FAQs</a></td>=20
+                           </tr>=20
+                          </tbody>=20
+                         </table> </td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                   <tr>=20
+                    <td style=3D"padding: 0 35px;">=20
+                     <table style=3D"width: 240px;" border=3D"0" width=3D"2=
+40" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td style=3D"font-family: 'Karla', arial, sans-seri=
+f; font-size: 12px; color: #008600; padding: 0 5px;"><a style=3D"color: #00=
+8600; text-decoration: none;" href=3D"https://click.e.homechef.com/?qs=3Dd6=
+a347a1d7be9c10a4276ac9704908079d383e4aeb0c507a187d6b92e0d1ff7dfa639f53a2490=
+fbff932be5c5d0f5b7f12660ff0cf796feb94407c8c14a0fc7f" target=3D"_blank" rel=
+=3D"noopener"> <img style=3D"width: 50px; height: auto; display: block; bor=
+der: 0;" src=3D"http://image.e.homechef.com/lib/fe8f13727c62017f74/m/8/Face=
+book.png" alt=3D"Facebook" width=3D"50"> </a></td>=20
+                        <td style=3D"font-family: 'Karla', arial, sans-seri=
+f; font-size: 12px; color: #008600; padding: 0 5px;"><a style=3D"color: #00=
+8600; text-decoration: none;" href=3D"https://click.e.homechef.com/?qs=3Dd6=
+a347a1d7be9c10f27720f893d8eef508ef8c44a71d653852cd754ce2c5f65af6d83982a4a2a=
+dbe59e94d5cb4bab377b1d1f412a15588687851bbd60bfe488d" target=3D"_blank" rel=
+=3D"noopener"> <img style=3D"width: 50px; height: auto; display: block; bor=
+der: 0;" src=3D"http://image.e.homechef.com/lib/fe8f13727c62017f74/m/8/Inst=
+agram.png" alt=3D"Instagram" width=3D"50"> </a></td>=20
+                        <td style=3D"font-family: 'Karla', arial, sans-seri=
+f; font-size: 12px; color: #008600; padding: 0 5px;"><a style=3D"color: #00=
+8600; text-decoration: none;" href=3D"https://click.e.homechef.com/?qs=3Dd6=
+a347a1d7be9c100589358d7323af7d783b87726c3ae08500e393c4aefd0fe20d985f8f0fc35=
+5d87b048fd54459e94fb0d2e7ec59f31821e5620a0c3c2a840c" target=3D"_blank" rel=
+=3D"noopener"> <img style=3D"width: 50px; height: auto; display: block; bor=
+der: 0;" src=3D"http://image.e.homechef.com/lib/fe8f13727c62017f74/m/8/Twit=
+ter.png" alt=3D"Twitter" width=3D"50"> </a></td>=20
+                        <td style=3D"font-family: 'Karla', arial, sans-seri=
+f; font-size: 12px; color: #008600; padding: 0 5px;"><a style=3D"color: #00=
+8600; text-decoration: none;" href=3D"https://click.e.homechef.com/?qs=3Dd6=
+a347a1d7be9c10186bde417d269362e2b32dca2615b2c740d8cc2a85969a421add10992f835=
+f9f1b3644455bd06fe645e81c3408597576ef567d627d43ab7c" target=3D"_blank" rel=
+=3D"noopener"> <img style=3D"width: 50px; height: auto; display: block; bor=
+der: 0;" src=3D"http://image.e.homechef.com/lib/fe8f13727c62017f74/m/9/Pint=
+erest.png" alt=3D"Pinterest" width=3D"50"> </a></td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                   <tr>=20
+                    <td style=3D"padding: 30px 20px;" align=3D"center">=20
+                     <table style=3D"width: 264px;" border=3D"0" width=3D"2=
+64" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td style=3D"font-family: 'Karla', arial, sans-seri=
+f; font-size: 12px; color: #008600; text-align: left; padding: 0 8px 0 0;">=
+<a style=3D"color: #008600; text-decoration: none;" href=3D"https://click.e=
+.homechef.com/?qs=3Dd6a347a1d7be9c10f0fa6498b56c3be607018eb1efaa508631b4785=
+436afa2b437a371f2db8f235648074ae0057bdf3cf81afd53e022ca749f753bb40b90424d" =
+target=3D"_blank" rel=3D"noopener"> <img style=3D"width: 135px; height: aut=
+o; vertical-align: top;" src=3D"http://image.e.homechef.com/lib/fe8f13727c6=
+2017f74/m/8/app-store.png" alt=3D"Download on the App Store" width=3D"135">=
+ </a></td>=20
+                        <td style=3D"font-family: 'Karla', arial, sans-seri=
+f; font-size: 12px; color: #008600; text-align: right; padding: 0 0 0 8px;"=
+><a style=3D"color: #008600; text-decoration: none;" href=3D"https://click.=
+e.homechef.com/?qs=3Dd6a347a1d7be9c109ad4672a4dffb39550f6c2d923534391e498e2=
+e5db31136ff0391453c1fc56e0b2281518d9dce8b0f33946fa8f37fecff1b1d995ce1d0b93"=
+> <img style=3D"width: 113px; height: auto; vertical-align: top;" src=3D"ht=
+tp://image.e.homechef.com/lib/fe8f13727c62017f74/m/8/google-play.png" alt=
+=3D"Get it on Google Play" width=3D"113"> </a></td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                   <tr>=20
+                    <td align=3D"center">=20
+                     <table style=3D"width: 100%;" border=3D"0" width=3D"10=
+0%" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">=20
+                      <tbody>=20
+                       <tr>=20
+                        <td style=3D"padding: 0px 35px 10px; font-family: '=
+Karla', arial, sans-serif; font-size: 16px; line-height: 150%; color: #9b9b=
+9b; text-align: center;">GOT QUESTIONS? Please do not reply to this email. =
+<a style=3D"color: #9b9b9b; text-decoration: underline;" href=3D"https://cl=
+ick.e.homechef.com/?qs=3Dd6a347a1d7be9c105c1d6e7f6d6748ea3495fcbfadcf880896=
+b2fc17f39a6ded74aa457ce76aefceb3dca9375e3b09c93c5cd8008060c9735bd607e59eaed=
+352" target=3D"_blank" rel=3D"noopener">We've&nbsp;got&nbsp;answers&nbsp;he=
+re.</a></td>=20
+                       </tr>=20
+                       <tr>=20
+                        <td style=3D"padding: 0px 35px 10px; font-family: '=
+Karla', arial, sans-serif; font-size: 16px; line-height: 150%; color: #9b9b=
+9b; text-align: center;"><a style=3D"color: #9b9b9b; text-decoration: under=
+line;" href=3D"https://view.e.homechef.com/?qs=3D6d6529b92bc030eb10aea69cd0=
+68eb07493e2c069dbe12d504756a92915244d6c9c18ae848a3834f8661a0536e5cdbfc23f2f=
+2454932429f8f28cc42ce3caf6d52c61423ae36e90bd7e96eb5b68b6e27" target=3D"_bla=
+nk" rel=3D"noopener">View this email in your browser.</a></td>=20
+                       </tr>=20
+                       <tr>=20
+                        <td style=3D"padding: 0px 35px 10px; font-family: '=
+Karla', arial, sans-serif; font-size: 16px; line-height: 150%; color: #9b9b=
+9b; text-align: center;">433 W Van Buren St, Suite 750N =E2=80=A2 Chicago, =
+IL, 60607</td>=20
+                       </tr>=20
+                      </tbody>=20
+                     </table> </td>=20
+                   </tr>=20
+                   <tr>=20
+                    <td style=3D"padding: 0 0 30px;" align=3D"center"><img =
+style=3D"display: block; width: 100%; max-width: 600px; height: auto; borde=
+r: 0;" src=3D"http://image.e.homechef.com/lib/fe8f13727c62017f74/m/9/Transp=
+arent_ChicagoFooter_Cropped.png" alt=3D"Home Chef" width=3D"600"></td>=20
+                   </tr>=20
+                  </tbody>=20
+                 </table> </td>=20
+               </tr>=20
+              </tbody>=20
+             </table> </td>=20
+           </tr>=20
+          </tbody>=20
+         </table>=20
+        </div> </td>=20
+      </tr>=20
+     </tbody>=20
+    </table>=20
+   </center>
+   <img src=3D"https://click.e.homechef.com/open.aspx?ffcb10-fea11572776406=
+7976-fe61127575670c7d751c-fe8f13727c62017f74-ff68157170-fe5d1077746604797d1=
+c-ff5a1c7971&amp;d=3D70246&amp;bmt=3D0" alt=3D"" width=3D"1" height=3D"1">
+  </blockquote>
+ </body>
+</html>
+------=_Part_1057743_351735964.1764026605812--

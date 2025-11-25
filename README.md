@@ -152,6 +152,7 @@ npm run deploy:prod
 
 # Or manually:
 # cd backend && sam deploy --config-env dev|prod
+# sam deploy --parameter-overrides EmailBucketName=house-mgmt-dev-emails
 ```
 
 ## Project Structure

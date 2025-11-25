@@ -12,6 +12,10 @@ Parameters:
     Type: CommaDelimitedList
     Default: "0.0.0.0/0"
     Description: IP addresses allowed to access the API
+  EmailBucketName:
+    Type: String
+    Default: house-mgmt-dev-emails
+    Description: Name of existing S3 bucket for email storage
 
 Globals:
   Function:
@@ -154,6 +158,31 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref HouseMgmtTable
 
+  # Email parser Lambda for meal data extraction
+  EmailParserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "house-mgmt-email-parser-${Environment}"
+      CodeUri: src/house_mgmt/
+      Handler: lambdas.meal_parser_handler.lambda_handler
+      Timeout: 60
+      MemorySize: 1024
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref EmailBucketName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HouseMgmtTable
+
+  # Permission for S3 to invoke the email parser Lambda
+  EmailParserInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref EmailParserFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !Sub "arn:aws:s3:::${EmailBucketName}/*"
+
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"
@@ -172,3 +201,9 @@ Outputs:
     Value: !Ref WeatherDataBucket
     Export:
       Name: !Sub "${AWS::StackName}-WeatherBucket"
+
+  EmailBucket:
+    Description: "S3 bucket for email storage (existing)"
+    Value: !Ref EmailBucketName
+    Export:
+      Name: !Sub "${AWS::StackName}-EmailBucket"

@@ -1,7 +1,0 @@
-# SAM template CORS configuration
-Globals:
-  Api:
-    Cors:
-      AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
-      AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
-      AllowOrigin: "'https://yourdomain.com'"  # Use specific domain in production
