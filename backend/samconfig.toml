@@ -22,6 +22,7 @@ capabilities = "CAPABILITY_IAM"
 image_repositories = []
 parameter_overrides = [
     "Environment=prod",
+    "EmailBucketName=house-mgmt-prod-emails",
     "AllowedIPs=$PRODUCTION_ALLOWED_IPS"  # Will be set by GitHub Actions
 ]
 
