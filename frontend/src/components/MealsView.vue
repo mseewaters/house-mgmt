@@ -136,8 +136,13 @@ const mealsByDate = computed(() => {
     grouped[date].push(meal)
   })
   
-  // Sort dates descending (newest first)
-  const sortedEntries = Object.entries(grouped).sort((a, b) => new Date(b[0]) - new Date(a[0]))
+  // Sort dates descending (newest first) - ensure proper date comparison
+  const sortedEntries = Object.entries(grouped).sort((a, b) => {
+    // Parse dates as UTC to avoid timezone issues
+    const dateA = new Date(a[0] + 'T00:00:00Z')
+    const dateB = new Date(b[0] + 'T00:00:00Z')
+    return dateB - dateA
+  })
   
   // Auto-expand the first (most recent) date
   const result = Object.fromEntries(sortedEntries)
@@ -237,22 +242,7 @@ const formatDateTime = (dateTimeStr) => {
 const formatDateHeader = (dateStr) => {
   try {
     const date = new Date(dateStr)
-    const today = new Date()
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-    
-    // Check if it's today, tomorrow, or yesterday
-    if (date.toDateString() === today.toDateString()) {
-      return 'Today - ' + date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-    } else if (date.toDateString() === tomorrow.toDateString()) {
-      return 'Tomorrow - ' + date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday - ' + date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-    } else {
-      return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-    }
+    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
   } catch {
     return dateStr
   }

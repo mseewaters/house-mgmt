@@ -144,6 +144,9 @@ npm run test:backend   # Python/pytest tests
 
 ### 4. Deploy
 ```bash
+
+Now requires S3 bucket as parameter
+
 # Development environment
 npm run deploy:dev
 
