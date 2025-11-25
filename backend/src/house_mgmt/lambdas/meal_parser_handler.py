@@ -382,16 +382,17 @@ def parse_month_day_to_date(date_str: str) -> str:
             if month_name in months:
                 month = months[month_name]
                 
-                # Determine year - if month is before current month, it's next year
+                # Determine year - meal dates are typically within the next few weeks
                 from datetime import datetime, timezone
                 current_date = datetime.now(timezone.utc)
                 year = current_date.year
                 
-                # If the month is before current month, assume next year
-                if month < current_date.month:
-                    year += 1
-                # If same month but day is before current day, assume next year
-                elif month == current_date.month and day < current_date.day:
+                # Create the date for this year
+                try_date = datetime(year, month, day, tzinfo=timezone.utc)
+                
+                # If the date is more than 30 days in the past, assume it's next year
+                days_diff = (current_date - try_date).days
+                if days_diff > 30:
                     year += 1
                 
                 return f"{year}-{month:02d}-{day:02d}"
